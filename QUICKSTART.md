@@ -10,6 +10,16 @@ pip install -e .
 
 This installs the package in editable mode, allowing you to modify the code and see changes immediately.
 
+### Optional Dependencies
+
+```bash
+# For deep RL with PyTorch (optional)
+pip install -e ".[torch]"
+
+# For development tools
+pip install -e ".[dev]"
+```
+
 ### Manual Installation
 
 ```bash
@@ -57,7 +67,13 @@ python environments/my_custom_env.py
 python examples/simple_gridworld.py
 ```
 
-### Training an Agent
+### Training a Q-Learning Agent
+
+```bash
+python examples/q_learning_agent.py
+```
+
+### Training an Agent (Random Baseline)
 
 ```bash
 python examples/train_example.py
@@ -78,7 +94,8 @@ python examples/train_example.py
 │   └── test_base_env.py
 ├── examples/             # Example implementations
 │   ├── simple_gridworld.py
-│   └── train_example.py
+│   ├── train_example.py
+│   └── q_learning_agent.py
 ├── tools/                # Utility tools
 │   └── create_env.py
 └── docs/                 # Documentation

@@ -41,6 +41,9 @@ setup(
             "black>=23.0.0",
             "flake8>=6.0.0",
         ],
+        "torch": [
+            "torch>=2.0.0",
+        ],
     },
     entry_points={
         "console_scripts": [

@@ -25,15 +25,16 @@ def train_random_agent(env, num_episodes=100):
     success_count = 0
     
     for episode in range(num_episodes):
-        obs = env.reset()
-        done = False
+        obs, info = env.reset()
+        terminated = False
+        truncated = False
         episode_reward = 0
         steps = 0
         
-        while not done:
+        while not (terminated or truncated):
             # Random policy
             action = env.action_space.sample()
-            obs, reward, done, info = env.step(action)
+            obs, reward, terminated, truncated, info = env.step(action)
             
             episode_reward += reward
             steps += 1
@@ -79,14 +80,15 @@ def evaluate_agent(env, num_episodes=10):
     successes = []
     
     for episode in range(num_episodes):
-        obs = env.reset()
-        done = False
+        obs, info = env.reset()
+        terminated = False
+        truncated = False
         episode_reward = 0
         steps = 0
         
-        while not done:
+        while not (terminated or truncated):
             action = env.action_space.sample()
-            obs, reward, done, info = env.step(action)
+            obs, reward, terminated, truncated, info = env.step(action)
             episode_reward += reward
             steps += 1
         

@@ -6,7 +6,7 @@ The agent navigates a 2D grid to reach a goal position.
 """
 
 from environments.base_env import BaseEnvironment
-from gym import spaces
+from gymnasium import spaces
 import numpy as np
 
 
@@ -26,6 +26,9 @@ class SimpleGridWorld(BaseEnvironment):
         # Grid dimensions
         self.grid_size = self.config.get('grid_size', 10)
         
+        # Reward configuration
+        self.reward_type = self.config.get('reward_type', 'sparse')
+        
         # Define spaces
         self.action_space = spaces.Discrete(4)
         self.observation_space = spaces.Box(
@@ -35,29 +38,33 @@ class SimpleGridWorld(BaseEnvironment):
         # Initialize positions
         self.agent_pos = None
         self.goal_pos = None
+        self.prev_distance = None
         
     def _get_initial_state(self):
         """Initialize agent and goal positions."""
-        # Random starting position
+        # Random starting position using gymnasium's RNG
         self.agent_pos = np.array([
-            np.random.randint(0, self.grid_size),
-            np.random.randint(0, self.grid_size)
-        ])
+            self.np_random.integers(0, self.grid_size),
+            self.np_random.integers(0, self.grid_size)
+        ], dtype=np.int32)
         
         # Random goal position (different from start)
         while True:
             self.goal_pos = np.array([
-                np.random.randint(0, self.grid_size),
-                np.random.randint(0, self.grid_size)
-            ])
+                self.np_random.integers(0, self.grid_size),
+                self.np_random.integers(0, self.grid_size)
+            ], dtype=np.int32)
             if not np.array_equal(self.agent_pos, self.goal_pos):
                 break
+        
+        # Initialize distance for dense reward shaping
+        self.prev_distance = np.linalg.norm(self.agent_pos - self.goal_pos)
         
         return self.agent_pos.copy()
     
     def _get_observation(self):
         """Return current agent position."""
-        return self.agent_pos.copy()
+        return self.agent_pos.astype(np.int32)
     
     def _update_state(self, action):
         """Update agent position based on action."""
@@ -83,15 +90,24 @@ class SimpleGridWorld(BaseEnvironment):
         if np.array_equal(self.agent_pos, self.goal_pos):
             return 100.0
         
-        # Small negative reward for each step (encourages efficiency)
-        return -1.0
+        # Reward shaping based on configuration
+        if self.reward_type == 'dense':
+            # Dense reward: potential-based shaping
+            current_distance = np.linalg.norm(self.agent_pos - self.goal_pos)
+            reward = self.prev_distance - current_distance
+            self.prev_distance = current_distance
+            return reward
+        else:
+            # Sparse reward: small negative reward for each step
+            return -1.0
     
-    def _is_done(self):
-        """Episode ends when goal is reached or max steps exceeded."""
-        goal_reached = np.array_equal(self.agent_pos, self.goal_pos)
-        max_steps_reached = self.current_step >= self.episode_length
-        
-        return goal_reached or max_steps_reached
+    def _is_terminated(self):
+        """Episode terminates when goal is reached."""
+        return np.array_equal(self.agent_pos, self.goal_pos)
+    
+    def _is_truncated(self):
+        """Episode is truncated when max steps are reached."""
+        return self.current_step >= self.episode_length
     
     def _get_info(self):
         """Return additional information about the episode."""
@@ -137,20 +153,21 @@ if __name__ == '__main__':
     # Run a few episodes with random actions
     for episode in range(3):
         print(f'\n--- Episode {episode + 1} ---')
-        obs = env.reset()
+        obs, info = env.reset(seed=42 + episode)
         env.render()
         
-        done = False
+        terminated = False
+        truncated = False
         total_reward = 0
         
-        while not done:
+        while not (terminated or truncated):
             # Take random action
             action = env.action_space.sample()
-            obs, reward, done, info = env.step(action)
+            obs, reward, terminated, truncated, info = env.step(action)
             total_reward += reward
             
             # Render every few steps
-            if env.current_step % 5 == 0 or done:
+            if env.current_step % 5 == 0 or terminated or truncated:
                 env.render()
         
         print(f'Episode finished! Total reward: {total_reward}')

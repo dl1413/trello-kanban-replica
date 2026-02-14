@@ -30,12 +30,12 @@ def configured_env():
 @pytest.fixture
 def reset_env(base_env):
     """Fixture providing a reset environment."""
-    base_env.reset()
+    obs, info = base_env.reset()
     return base_env
 
 
 @pytest.fixture
 def random_seed():
     """Fixture for reproducible random numbers."""
-    np.random.seed(42)
+    # Use per-environment seeding instead of global seeding
     return 42
