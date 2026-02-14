@@ -2,11 +2,11 @@
 Base Environment Class for RL Environments
 
 This module provides a base class for creating custom RL environments
-that are compatible with OpenAI Gym interface.
+that are compatible with Gymnasium interface.
 """
 
-import gym
-from gym import spaces
+import gymnasium as gym
+from gymnasium import spaces
 import numpy as np
 from typing import Tuple, Dict, Any, Optional
 
@@ -20,7 +20,7 @@ class BaseEnvironment(gym.Env):
     and episode management.
     """
     
-    metadata = {'render.modes': ['human', 'rgb_array']}
+    metadata = {'render_modes': ['human', 'rgb_array']}
     
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """
@@ -32,7 +32,7 @@ class BaseEnvironment(gym.Env):
         super(BaseEnvironment, self).__init__()
         
         self.config = config or {}
-        self.episode_length = self.config.get('episode_length', 1000)
+        self._load_config(self.config)
         self.current_step = 0
         
         # Define action and observation space
@@ -43,21 +43,37 @@ class BaseEnvironment(gym.Env):
         )
         
         self.state = None
-        self.done = False
+        self.terminated = False
+        self.truncated = False
+        self._seed = None
         
-    def reset(self) -> np.ndarray:
+    def reset(self, seed: Optional[int] = None, options: Optional[Dict[str, Any]] = None) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
         Reset the environment to initial state.
         
+        Args:
+            seed: Random seed for reproducibility
+            options: Additional options for reset
+        
         Returns:
-            Initial observation
+            observation: Initial observation
+            info: Additional information
         """
+        # Call parent reset for seeding
+        if seed is not None:
+            super().reset(seed=seed)
+            self._seed = seed
+        
         self.current_step = 0
-        self.done = False
+        self.terminated = False
+        self.truncated = False
         self.state = self._get_initial_state()
-        return self._get_observation()
+        observation = self._get_observation()
+        info = self._get_info()
+        
+        return observation, info
     
-    def step(self, action: int) -> Tuple[np.ndarray, float, bool, Dict]:
+    def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, Dict]:
         """
         Execute one step in the environment.
         
@@ -67,10 +83,15 @@ class BaseEnvironment(gym.Env):
         Returns:
             observation: Current observation
             reward: Reward for the action
-            done: Whether episode is complete
+            terminated: Whether a terminal state is reached
+            truncated: Whether the episode is truncated (time limit)
             info: Additional information
         """
-        if self.done:
+        # Validate action
+        if not self.action_space.contains(action):
+            raise ValueError(f"Invalid action {action} for space {self.action_space}")
+        
+        if self.terminated or self.truncated:
             raise RuntimeError("Episode is done. Call reset() to start a new episode.")
         
         self.current_step += 1
@@ -81,8 +102,14 @@ class BaseEnvironment(gym.Env):
         # Calculate reward
         reward = self._calculate_reward(action)
         
-        # Check if episode is done
-        self.done = self._is_done()
+        # Apply reward scaling and clipping
+        reward = reward * self.reward_scale
+        if self.reward_clip_range is not None:
+            reward = np.clip(reward, self.reward_clip_range[0], self.reward_clip_range[1])
+        
+        # Check if episode is terminated or truncated
+        self.terminated = self._is_terminated()
+        self.truncated = self._is_truncated()
         
         # Get observation
         observation = self._get_observation()
@@ -90,7 +117,7 @@ class BaseEnvironment(gym.Env):
         # Additional info
         info = self._get_info()
         
-        return observation, reward, self.done, info
+        return observation, reward, self.terminated, self.truncated, info
     
     def render(self, mode: str = 'human'):
         """
@@ -111,6 +138,23 @@ class BaseEnvironment(gym.Env):
     
     # Protected methods to be overridden by subclasses
     
+    def _load_config(self, config: Dict[str, Any]):
+        """
+        Load configuration from nested YAML structure.
+        
+        Args:
+            config: Configuration dictionary
+        """
+        # Load episode configuration
+        env_config = config.get('environment', {})
+        self.episode_length = env_config.get('episode_length', config.get('episode_length', 1000))
+        
+        # Load reward configuration
+        reward_config = env_config.get('reward', {})
+        self.reward_scale = reward_config.get('scale', 1.0)
+        clip_enabled = reward_config.get('clip', False)
+        self.reward_clip_range = reward_config.get('clip_range', [-10, 10]) if clip_enabled else None
+    
     def _get_initial_state(self) -> Any:
         """Get initial state. Override in subclass."""
         return np.zeros(self.observation_space.shape, dtype=np.uint8)
@@ -127,8 +171,23 @@ class BaseEnvironment(gym.Env):
         """Calculate reward for action. Override in subclass."""
         return 0.0
     
-    def _is_done(self) -> bool:
-        """Check if episode is done. Override in subclass."""
+    def _is_terminated(self) -> bool:
+        """
+        Check if episode has reached a terminal state.
+        Override in subclass for task-specific termination.
+        
+        Returns:
+            True if terminal state reached, False otherwise
+        """
+        return False
+    
+    def _is_truncated(self) -> bool:
+        """
+        Check if episode should be truncated (e.g., time limit).
+        
+        Returns:
+            True if episode should be truncated, False otherwise
+        """
         return self.current_step >= self.episode_length
     
     def _get_info(self) -> Dict[str, Any]:

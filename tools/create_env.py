@@ -14,7 +14,7 @@ Description: Add your environment description here
 """
 
 from environments.base_env import BaseEnvironment
-from gym import spaces
+from gymnasium import spaces
 import numpy as np
 from typing import Dict, Any, Optional
 
@@ -60,9 +60,13 @@ class {class_name}(BaseEnvironment):
         # TODO: Implement reward function
         return 0.0
     
-    def _is_done(self) -> bool:
-        """Check if episode should terminate."""
-        # TODO: Implement termination conditions
+    def _is_terminated(self) -> bool:
+        """Check if episode has reached terminal state."""
+        # TODO: Implement terminal state conditions
+        return False
+    
+    def _is_truncated(self) -> bool:
+        """Check if episode should be truncated (time limit)."""
         return self.current_step >= self.episode_length
     
     def _get_info(self) -> Dict[str, Any]:
@@ -84,15 +88,16 @@ if __name__ == '__main__':
     env = {class_name}()
     
     # Run a test episode
-    obs = env.reset()
+    obs, info = env.reset(seed=42)
     print(f'Initial observation: {{obs}}')
     
-    done = False
+    terminated = False
+    truncated = False
     total_reward = 0
     
-    while not done:
+    while not (terminated or truncated):
         action = env.action_space.sample()
-        obs, reward, done, info = env.step(action)
+        obs, reward, terminated, truncated, info = env.step(action)
         total_reward += reward
         
         if env.current_step % 10 == 0:
@@ -126,34 +131,37 @@ class Test{class_name}:
     def test_reset(self):
         """Test reset functionality."""
         env = {class_name}()
-        obs = env.reset()
+        obs, info = env.reset()
         
         assert env.observation_space.contains(obs)
         assert env.current_step == 0
+        assert isinstance(info, dict)
     
     def test_step(self):
         """Test step functionality."""
         env = {class_name}()
         env.reset()
         
-        obs, reward, done, info = env.step(0)
+        obs, reward, terminated, truncated, info = env.step(0)
         
         assert env.observation_space.contains(obs)
         assert isinstance(reward, (int, float))
-        assert isinstance(done, bool)
+        assert isinstance(terminated, bool)
+        assert isinstance(truncated, bool)
         assert isinstance(info, dict)
     
     def test_episode_completion(self):
         """Test running a complete episode."""
         env = {class_name}()
-        obs = env.reset()
+        obs, info = env.reset()
         
-        done = False
+        terminated = False
+        truncated = False
         steps = 0
         
-        while not done and steps < 1000:
+        while not (terminated or truncated) and steps < 1000:
             action = env.action_space.sample()
-            obs, reward, done, info = env.step(action)
+            obs, reward, terminated, truncated, info = env.step(action)
             steps += 1
         
         assert steps > 0
