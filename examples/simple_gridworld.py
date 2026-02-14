@@ -46,14 +46,14 @@ class SimpleGridWorld(BaseEnvironment):
         self.agent_pos = np.array([
             self.np_random.integers(0, self.grid_size),
             self.np_random.integers(0, self.grid_size)
-        ])
+        ], dtype=np.int32)
         
         # Random goal position (different from start)
         while True:
             self.goal_pos = np.array([
                 self.np_random.integers(0, self.grid_size),
                 self.np_random.integers(0, self.grid_size)
-            ])
+            ], dtype=np.int32)
             if not np.array_equal(self.agent_pos, self.goal_pos):
                 break
         
@@ -64,7 +64,7 @@ class SimpleGridWorld(BaseEnvironment):
     
     def _get_observation(self):
         """Return current agent position."""
-        return self.agent_pos.copy()
+        return self.agent_pos.astype(np.int32)
     
     def _update_state(self, action):
         """Update agent position based on action."""
