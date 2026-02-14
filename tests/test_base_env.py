@@ -264,9 +264,20 @@ class TestBaseEnvironmentEdgeCases:
         env = BaseEnvironment(config)
         env.reset()
         
-        # Since base _calculate_reward returns 0.0, we can't test much
-        # but we verify the config is loaded
+        # Verify the config is loaded correctly
         assert env.reward_scale == 2.0
+        
+        # Test with a custom subclass that returns non-zero reward
+        class TestEnv(BaseEnvironment):
+            def _calculate_reward(self, action):
+                return 10.0
+        
+        test_env = TestEnv(config)
+        test_env.reset()
+        _, reward, _, _, _ = test_env.step(0)
+        
+        # Reward should be scaled
+        assert reward == 20.0  # 10.0 * 2.0
 
 
 if __name__ == '__main__':

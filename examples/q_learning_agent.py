@@ -430,8 +430,9 @@ def main():
     print(f'  Mean Length: {random_eval["mean_length"]:.2f} ± {random_eval["std_length"]:.2f}')
     print(f'  Success Rate: {random_eval["success_rate"]:.2%}')
     
-    improvement = (final_eval["mean_reward"] - random_eval["mean_reward"]) / abs(random_eval["mean_reward"]) * 100
-    print(f'\nImprovement over Random: {improvement:+.1f}%')
+    improvement = (final_eval["mean_reward"] - random_eval["mean_reward"]) / abs(random_eval["mean_reward"]) * 100 if random_eval["mean_reward"] != 0 else float('inf')
+    improvement_str = f'{improvement:+.1f}%' if improvement != float('inf') else '+∞%'
+    print(f'\nImprovement over Random: {improvement_str}')
     
     # Plot results
     print('\n' + '=' * 70)
