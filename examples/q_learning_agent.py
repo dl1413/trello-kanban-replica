@@ -155,9 +155,13 @@ class QLearningAgent:
         import json
         
         # Convert defaultdict to regular dict for JSON serialization
-        q_table_serializable = {
-            str(k): v.tolist() for k, v in self.q_table.items()
-        }
+        q_table_serializable = {}
+        for k, v in self.q_table.items():
+            # Convert numpy arrays to lists, handle both arrays and lists
+            if hasattr(v, 'tolist'):
+                q_table_serializable[str(k)] = v.tolist()
+            else:
+                q_table_serializable[str(k)] = list(v)
         
         save_data = {
             'q_table': q_table_serializable,
@@ -447,7 +451,7 @@ def main():
     # Create environment
     env = SimpleGridWorld(env_config)
     
-    print(f'\nEnvironment Configuration:')
+    print('\nEnvironment Configuration:')
     print(f'  Grid Size: {env.grid_size}x{env.grid_size}')
     print(f'  Max Episode Length: {env.episode_length}')
     print(f'  Reward Type: {env.reward_type}')
@@ -464,7 +468,7 @@ def main():
         epsilon_min=0.01
     )
     
-    print(f'\nAgent Configuration:')
+    print('\nAgent Configuration:')
     print(f'  Learning Rate: {agent.learning_rate}')
     print(f'  Discount Factor: {agent.discount_factor}')
     print(f'  Initial Epsilon: {agent.epsilon}')
@@ -492,14 +496,14 @@ def main():
     print('=' * 70)
     
     final_eval = evaluate_agent(env, agent, num_episodes=100)
-    print(f'\nFinal Performance (100 episodes):')
+    print('\nFinal Performance (100 episodes):')
     print(f'  Mean Reward: {final_eval["mean_reward"]:.2f} ± {final_eval["std_reward"]:.2f}')
     print(f'  Mean Length: {final_eval["mean_length"]:.2f} ± {final_eval["std_length"]:.2f}')
     print(f'  Success Rate: {final_eval["success_rate"]:.2%}')
     
     # Agent statistics
     agent_stats = agent.get_statistics()
-    print(f'\nAgent Statistics:')
+    print('\nAgent Statistics:')
     print(f'  Total Steps: {agent_stats["total_steps"]:,}')
     print(f'  Episodes Trained: {agent_stats["episodes_trained"]:,}')
     print(f'  Final Epsilon: {agent_stats["epsilon"]:.4f}')
@@ -518,12 +522,14 @@ def main():
     random_agent = RandomAgent()
     random_eval = evaluate_agent(env, random_agent, num_episodes=100)
     
-    print(f'\nRandom Agent Performance (100 episodes):')
+    print('\nRandom Agent Performance (100 episodes):')
     print(f'  Mean Reward: {random_eval["mean_reward"]:.2f} ± {random_eval["std_reward"]:.2f}')
     print(f'  Mean Length: {random_eval["mean_length"]:.2f} ± {random_eval["std_length"]:.2f}')
     print(f'  Success Rate: {random_eval["success_rate"]:.2%}')
     
-    improvement = (final_eval["mean_reward"] - random_eval["mean_reward"]) / abs(random_eval["mean_reward"]) * 100 if abs(random_eval["mean_reward"]) > 1e-8 else float('inf')
+    improvement = ((final_eval["mean_reward"] - random_eval["mean_reward"]) /
+                   abs(random_eval["mean_reward"]) * 100 if abs(random_eval["mean_reward"]) > 1e-8
+                   else float('inf'))
     improvement_str = f'{improvement:+.1f}%' if improvement != float('inf') else '+∞%'
     print(f'\nImprovement over Random: {improvement_str}')
     
