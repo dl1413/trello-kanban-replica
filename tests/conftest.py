@@ -3,7 +3,6 @@ Test fixtures for RL environment tests
 """
 
 import pytest
-import numpy as np
 from environments.base_env import BaseEnvironment
 
 

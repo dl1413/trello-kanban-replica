@@ -16,11 +16,11 @@ from examples.simple_gridworld import SimpleGridWorld
 class QLearningAgent:
     """
     Tabular Q-Learning agent with epsilon-greedy exploration.
-    
+
     This agent learns a value function Q(s,a) for discrete state-action
     pairs using the Q-Learning algorithm.
     """
-    
+
     def __init__(
         self,
         action_space_size: int,
@@ -34,7 +34,7 @@ class QLearningAgent:
     ):
         """
         Initialize Q-Learning agent.
-        
+
         Args:
             action_space_size: Number of possible actions
             learning_rate: Learning rate (alpha)
@@ -53,42 +53,42 @@ class QLearningAgent:
         self.epsilon_decay = epsilon_decay
         self.epsilon_min = epsilon_min
         self.learning_rate_decay = learning_rate_decay
-        
+
         # Create seeded RNG for reproducibility
         self.rng = np.random.default_rng(seed)
-        
+
         # Q-table stored as nested dict: state -> action -> value
         self.q_table = defaultdict(lambda: np.zeros(action_space_size))
-        
+
         # Statistics
         self.total_steps = 0
         self.episodes_trained = 0
-    
+
     def _state_to_key(self, state: np.ndarray) -> Tuple:
         """Convert state array to hashable key for Q-table."""
         return tuple(state.flatten())
-    
+
     def select_action(self, state: np.ndarray, training: bool = True) -> int:
         """
         Select action using epsilon-greedy policy.
-        
+
         Args:
             state: Current state observation
             training: If True, use epsilon-greedy; if False, use greedy
-        
+
         Returns:
             Selected action
         """
         state_key = self._state_to_key(state)
-        
+
         # Epsilon-greedy exploration during training
         if training and self.rng.random() < self.epsilon:
             return int(self.rng.integers(0, self.action_space_size))
-        
+
         # Greedy action selection
         q_values = self.q_table[state_key]
         return int(np.argmax(q_values))
-    
+
     def update(
         self,
         state: np.ndarray,
@@ -99,7 +99,7 @@ class QLearningAgent:
     ):
         """
         Update Q-value using Q-Learning update rule.
-        
+
         Args:
             state: Current state
             action: Action taken
@@ -109,32 +109,32 @@ class QLearningAgent:
         """
         state_key = self._state_to_key(state)
         next_state_key = self._state_to_key(next_state)
-        
+
         # Current Q-value
         current_q = self.q_table[state_key][action]
-        
+
         # TD target
         if terminated:
             target_q = reward
         else:
             max_next_q = np.max(self.q_table[next_state_key])
             target_q = reward + self.discount_factor * max_next_q
-        
+
         # Q-Learning update
         self.q_table[state_key][action] += self.learning_rate * (target_q - current_q)
-        
+
         self.total_steps += 1
-    
+
     def decay_epsilon(self):
         """Decay exploration rate and optionally learning rate."""
         self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
-        
+
         # Apply learning rate decay if configured
         if self.learning_rate_decay is not None:
             self.learning_rate = max(0.001, self.learning_rate * self.learning_rate_decay)
-        
+
         self.episodes_trained += 1
-    
+
     def get_statistics(self) -> Dict[str, Any]:
         """Get agent statistics."""
         return {
@@ -144,16 +144,16 @@ class QLearningAgent:
             'learning_rate': self.learning_rate,
             'q_table_size': len(self.q_table)
         }
-    
+
     def save(self, filepath: str):
         """
         Save Q-table to file.
-        
+
         Args:
             filepath: Path to save the Q-table
         """
         import json
-        
+
         # Convert defaultdict to regular dict for JSON serialization
         q_table_serializable = {}
         for k, v in self.q_table.items():
@@ -164,7 +164,7 @@ class QLearningAgent:
                 q_table_serializable[key_str] = v.tolist()
             else:
                 q_table_serializable[key_str] = list(v)
-        
+
         save_data = {
             'q_table': q_table_serializable,
             'action_space_size': self.action_space_size,
@@ -178,28 +178,28 @@ class QLearningAgent:
             'total_steps': self.total_steps,
             'episodes_trained': self.episodes_trained
         }
-        
+
         with open(filepath, 'w') as f:
             json.dump(save_data, f, indent=2)
-    
+
     @classmethod
     def load(cls, filepath: str, seed: Optional[int] = None) -> 'QLearningAgent':
         """
         Load Q-table from file.
-        
+
         Args:
             filepath: Path to load the Q-table from
             seed: Optional seed for the loaded agent's RNG
-        
+
         Returns:
             Loaded QLearningAgent instance
         """
         import json
         import ast
-        
+
         with open(filepath, 'r') as f:
             save_data = json.load(f)
-        
+
         # Create agent with saved parameters
         agent = cls(
             action_space_size=save_data['action_space_size'],
@@ -211,18 +211,20 @@ class QLearningAgent:
             learning_rate_decay=save_data.get('learning_rate_decay'),
             seed=seed
         )
-        
+
         # Restore Q-table
         agent.q_table = defaultdict(lambda: np.zeros(agent.action_space_size))
         for k, v in save_data['q_table'].items():
             # Safely convert string key back to tuple using ast.literal_eval
             agent.q_table[ast.literal_eval(k)] = np.array(v)
-        
+
         # Restore statistics
-        agent.initial_learning_rate = save_data.get('initial_learning_rate', save_data['learning_rate'])
+        agent.initial_learning_rate = save_data.get(
+            'initial_learning_rate', save_data['learning_rate']
+        )
         agent.total_steps = save_data.get('total_steps', 0)
         agent.episodes_trained = save_data.get('episodes_trained', 0)
-        
+
         return agent
 
 
@@ -236,7 +238,7 @@ def train_q_learning(
 ) -> Dict[str, Any]:
     """
     Train Q-Learning agent on the environment.
-    
+
     Args:
         env: Environment instance
         agent: Q-Learning agent
@@ -244,7 +246,7 @@ def train_q_learning(
         max_steps: Maximum steps per episode
         eval_interval: Evaluate every N episodes
         verbose: Print progress
-    
+
     Returns:
         Training statistics
     """
@@ -253,44 +255,44 @@ def train_q_learning(
     success_count = 0
     eval_rewards = []
     eval_success_rates = []
-    
+
     for episode in range(num_episodes):
         obs, info = env.reset()
         episode_reward = 0
         steps = 0
-        
+
         terminated = False
         truncated = False
-        
+
         while not (terminated or truncated) and steps < max_steps:
             # Select action
             action = agent.select_action(obs, training=True)
-            
+
             # Take step
             next_obs, reward, terminated, truncated, info = env.step(action)
-            
+
             # Update Q-table
             agent.update(obs, action, reward, next_obs, terminated)
-            
+
             obs = next_obs
             episode_reward += reward
             steps += 1
-        
+
         # Decay epsilon
         agent.decay_epsilon()
-        
+
         # Record statistics
         episode_rewards.append(episode_reward)
         episode_lengths.append(steps)
         if info.get('goal_reached', False):
             success_count += 1
-        
+
         # Evaluation
         if (episode + 1) % eval_interval == 0:
             eval_stats = evaluate_agent(env, agent, num_episodes=20)
             eval_rewards.append(eval_stats['mean_reward'])
             eval_success_rates.append(eval_stats['success_rate'])
-            
+
             if verbose:
                 avg_reward = np.mean(episode_rewards[-eval_interval:])
                 avg_length = np.mean(episode_lengths[-eval_interval:])
@@ -302,7 +304,7 @@ def train_q_learning(
                       f'Epsilon: {agent.epsilon:.3f} | '
                       f'Eval Reward: {eval_stats["mean_reward"]:.2f} | '
                       f'Eval Success: {eval_stats["success_rate"]:.2%}')
-    
+
     return {
         'episode_rewards': episode_rewards,
         'episode_lengths': episode_lengths,
@@ -321,42 +323,42 @@ def evaluate_agent(
 ) -> Dict[str, float]:
     """
     Evaluate agent performance without exploration.
-    
+
     Args:
         env: Environment instance
         agent: Trained agent
         num_episodes: Number of evaluation episodes
         max_steps: Maximum steps per episode (defaults to env.episode_length)
-    
+
     Returns:
         Evaluation metrics
     """
     if max_steps is None:
         max_steps = env.episode_length
-    
+
     rewards = []
     lengths = []
     successes = []
-    
+
     for _ in range(num_episodes):
         obs, info = env.reset()
         episode_reward = 0
         steps = 0
-        
+
         terminated = False
         truncated = False
-        
+
         while not (terminated or truncated) and steps < max_steps:
             # Greedy action selection (no exploration)
             action = agent.select_action(obs, training=False)
             obs, reward, terminated, truncated, info = env.step(action)
             episode_reward += reward
             steps += 1
-        
+
         rewards.append(episode_reward)
         lengths.append(steps)
         successes.append(info.get('goal_reached', False))
-    
+
     return {
         'mean_reward': np.mean(rewards),
         'std_reward': np.std(rewards),
@@ -369,13 +371,13 @@ def evaluate_agent(
 def plot_training_results(stats: Dict[str, Any], save_path: str = None):
     """
     Plot training results.
-    
+
     Args:
         stats: Training statistics dictionary
         save_path: Optional path to save figure
     """
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-    
+
     # Episode rewards
     ax = axes[0, 0]
     ax.plot(stats['episode_rewards'], alpha=0.3, label='Episode Reward')
@@ -393,7 +395,7 @@ def plot_training_results(stats: Dict[str, Any], save_path: str = None):
     ax.set_title('Training Rewards')
     ax.legend()
     ax.grid(True, alpha=0.3)
-    
+
     # Episode lengths
     ax = axes[0, 1]
     ax.plot(stats['episode_lengths'], alpha=0.3, label='Episode Length')
@@ -410,7 +412,7 @@ def plot_training_results(stats: Dict[str, Any], save_path: str = None):
     ax.set_title('Episode Lengths')
     ax.legend()
     ax.grid(True, alpha=0.3)
-    
+
     # Evaluation rewards
     ax = axes[1, 0]
     eval_episodes = np.arange(len(stats['eval_rewards'])) * 50 + 50
@@ -419,7 +421,7 @@ def plot_training_results(stats: Dict[str, Any], save_path: str = None):
     ax.set_ylabel('Mean Evaluation Reward')
     ax.set_title('Evaluation Performance')
     ax.grid(True, alpha=0.3)
-    
+
     # Success rate
     ax = axes[1, 1]
     ax.plot(eval_episodes, stats['eval_success_rates'], marker='o', linewidth=2, color='green')
@@ -428,13 +430,13 @@ def plot_training_results(stats: Dict[str, Any], save_path: str = None):
     ax.set_title('Evaluation Success Rate')
     ax.set_ylim([0, 1.05])
     ax.grid(True, alpha=0.3)
-    
+
     plt.tight_layout()
-    
+
     if save_path:
         plt.savefig(save_path, dpi=150, bbox_inches='tight')
         print(f'Saved plot to {save_path}')
-    
+
     return fig
 
 
@@ -443,24 +445,24 @@ def main():
     print('=' * 70)
     print('Q-Learning Agent Training on SimpleGridWorld')
     print('=' * 70)
-    
+
     # Environment configuration
     env_config = {
         'grid_size': 5,
         'episode_length': 100,
         'reward_type': 'sparse'  # or 'dense' for shaped rewards
     }
-    
+
     # Create environment
     env = SimpleGridWorld(env_config)
-    
+
     print('\nEnvironment Configuration:')
     print(f'  Grid Size: {env.grid_size}x{env.grid_size}')
     print(f'  Max Episode Length: {env.episode_length}')
     print(f'  Reward Type: {env.reward_type}')
     print(f'  Action Space: {env.action_space}')
     print(f'  Observation Space: {env.observation_space}')
-    
+
     # Create Q-Learning agent
     agent = QLearningAgent(
         action_space_size=env.action_space.n,
@@ -470,19 +472,19 @@ def main():
         epsilon_decay=0.995,
         epsilon_min=0.01
     )
-    
+
     print('\nAgent Configuration:')
     print(f'  Learning Rate: {agent.learning_rate}')
     print(f'  Discount Factor: {agent.discount_factor}')
     print(f'  Initial Epsilon: {agent.epsilon}')
     print(f'  Epsilon Decay: {agent.epsilon_decay}')
     print(f'  Min Epsilon: {agent.epsilon_min}')
-    
+
     # Train agent
     print('\n' + '=' * 70)
     print('Training Agent')
     print('=' * 70 + '\n')
-    
+
     num_episodes = 500
     stats = train_q_learning(
         env=env,
@@ -492,18 +494,18 @@ def main():
         eval_interval=50,
         verbose=True
     )
-    
+
     # Final evaluation
     print('\n' + '=' * 70)
     print('Final Evaluation')
     print('=' * 70)
-    
+
     final_eval = evaluate_agent(env, agent, num_episodes=100)
     print('\nFinal Performance (100 episodes):')
     print(f'  Mean Reward: {final_eval["mean_reward"]:.2f} ± {final_eval["std_reward"]:.2f}')
     print(f'  Mean Length: {final_eval["mean_length"]:.2f} ± {final_eval["std_length"]:.2f}')
     print(f'  Success Rate: {final_eval["success_rate"]:.2%}')
-    
+
     # Agent statistics
     agent_stats = agent.get_statistics()
     print('\nAgent Statistics:')
@@ -511,36 +513,38 @@ def main():
     print(f'  Episodes Trained: {agent_stats["episodes_trained"]:,}')
     print(f'  Final Epsilon: {agent_stats["epsilon"]:.4f}')
     print(f'  Q-Table Size: {agent_stats["q_table_size"]:,} states')
-    
+
     # Compare with random baseline
     print('\n' + '=' * 70)
     print('Random Baseline Comparison')
     print('=' * 70)
-    
+
     # Create a dummy agent for random baseline
     class RandomAgent:
         def select_action(self, state, training=True):
             return env.action_space.sample()
-    
+
     random_agent = RandomAgent()
     random_eval = evaluate_agent(env, random_agent, num_episodes=100)
-    
+
     print('\nRandom Agent Performance (100 episodes):')
     print(f'  Mean Reward: {random_eval["mean_reward"]:.2f} ± {random_eval["std_reward"]:.2f}')
     print(f'  Mean Length: {random_eval["mean_length"]:.2f} ± {random_eval["std_length"]:.2f}')
     print(f'  Success Rate: {random_eval["success_rate"]:.2%}')
-    
-    improvement = ((final_eval["mean_reward"] - random_eval["mean_reward"]) /
-                   abs(random_eval["mean_reward"]) * 100 if abs(random_eval["mean_reward"]) > 1e-8
-                   else float('inf'))
+
+    improvement = (
+        (final_eval["mean_reward"] - random_eval["mean_reward"])
+        / abs(random_eval["mean_reward"]) * 100
+        if abs(random_eval["mean_reward"]) > 1e-8 else float('inf')
+    )
     improvement_str = f'{improvement:+.1f}%' if improvement != float('inf') else '+∞%'
     print(f'\nImprovement over Random: {improvement_str}')
-    
+
     # Plot results
     print('\n' + '=' * 70)
     print('Generating Training Plots')
     print('=' * 70)
-    
+
     try:
         import matplotlib
         # Use Agg backend for non-GUI environments
@@ -549,7 +553,7 @@ def main():
         print('\nPlot saved to /tmp/q_learning_results.png')
     except Exception as e:
         print(f'\nCould not generate plots: {e}')
-    
+
     # Close environment
     env.close()
     print('\nTraining complete!')

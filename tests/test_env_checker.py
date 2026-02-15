@@ -13,11 +13,11 @@ from examples.simple_gridworld import SimpleGridWorld
 
 class TestEnvironmentAPICompliance:
     """Test suite for Gymnasium API compliance."""
-    
+
     def test_base_environment_compliance(self):
         """Test that BaseEnvironment complies with Gymnasium API."""
         env = BaseEnvironment()
-        
+
         # Run gymnasium's built-in environment checker
         # This validates observation/action spaces, reset/step APIs, etc.
         try:
@@ -26,7 +26,7 @@ class TestEnvironmentAPICompliance:
             pytest.fail(f"BaseEnvironment failed Gymnasium API compliance check: {e}")
         finally:
             env.close()
-    
+
     def test_simple_gridworld_compliance(self):
         """Test that SimpleGridWorld complies with Gymnasium API."""
         config = {
@@ -34,7 +34,7 @@ class TestEnvironmentAPICompliance:
             'episode_length': 50
         }
         env = SimpleGridWorld(config)
-        
+
         # Run gymnasium's built-in environment checker
         try:
             check_env(env, skip_render_check=True)
@@ -42,7 +42,7 @@ class TestEnvironmentAPICompliance:
             pytest.fail(f"SimpleGridWorld failed Gymnasium API compliance check: {e}")
         finally:
             env.close()
-    
+
     def test_simple_gridworld_dense_rewards_compliance(self):
         """Test SimpleGridWorld with dense rewards complies with API."""
         config = {
@@ -51,14 +51,14 @@ class TestEnvironmentAPICompliance:
             'reward_type': 'dense'
         }
         env = SimpleGridWorld(config)
-        
+
         try:
             check_env(env, skip_render_check=True)
         except Exception as e:
             pytest.fail(f"SimpleGridWorld (dense rewards) failed compliance check: {e}")
         finally:
             env.close()
-    
+
     def test_environment_with_nested_config(self):
         """Test environment with nested YAML config structure."""
         config = {
@@ -72,25 +72,25 @@ class TestEnvironmentAPICompliance:
             }
         }
         env = BaseEnvironment(config)
-        
+
         try:
             check_env(env, skip_render_check=True)
         except Exception as e:
             pytest.fail(f"BaseEnvironment with nested config failed compliance check: {e}")
         finally:
             env.close()
-    
+
     def test_seeded_environment_compliance(self):
         """Test that seeded environments comply with API."""
         env = SimpleGridWorld()
-        
+
         # Reset with seed
         obs, info = env.reset(seed=42)
-        
+
         # Verify seeding worked
         assert hasattr(env, 'np_random')
         assert env.np_random is not None
-        
+
         try:
             check_env(env, skip_render_check=True)
         except Exception as e:
