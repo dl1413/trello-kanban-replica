@@ -8,7 +8,7 @@ that are compatible with Gymnasium interface.
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-from typing import Tuple, Dict, Any, Optional
+from typing import Tuple, Dict, Any, Optional, Union
 
 
 class BaseEnvironment(gym.Env):
@@ -46,6 +46,8 @@ class BaseEnvironment(gym.Env):
         self.terminated = False
         self.truncated = False
         self._seed = None
+        self.episode_return = 0.0
+        self.episode_steps = 0
         
     def reset(self, seed: Optional[int] = None, options: Optional[Dict[str, Any]] = None) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
@@ -67,19 +69,21 @@ class BaseEnvironment(gym.Env):
         self.current_step = 0
         self.terminated = False
         self.truncated = False
+        self.episode_return = 0.0
+        self.episode_steps = 0
         self.state = self._get_initial_state()
         observation = self._get_observation()
         info = self._get_info()
-        
+
         return observation, info
     
-    def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, Dict]:
+    def step(self, action: Union[int, np.ndarray]) -> Tuple[np.ndarray, float, bool, bool, Dict[str, Any]]:
         """
         Execute one step in the environment.
-        
+
         Args:
             action: Action to take
-            
+
         Returns:
             observation: Current observation
             reward: Reward for the action
@@ -95,42 +99,48 @@ class BaseEnvironment(gym.Env):
             raise RuntimeError("Episode is done. Call reset() to start a new episode.")
         
         self.current_step += 1
-        
+        self.episode_steps += 1
+
         # Execute action and update state
         self._update_state(action)
-        
+
         # Calculate reward
         reward = self._calculate_reward(action)
-        
+
         # Apply reward scaling and clipping
-        reward = reward * self.reward_scale
-        if self.reward_clip_range is not None:
-            reward = np.clip(reward, self.reward_clip_range[0], self.reward_clip_range[1])
-        
+        reward = self._apply_reward_processing(reward)
+
+        # Track episode return
+        self.episode_return += reward
+
         # Check if episode is terminated or truncated
         self.terminated = self._is_terminated()
         self.truncated = self._is_truncated()
-        
+
         # Get observation
         observation = self._get_observation()
-        
+
         # Additional info
         info = self._get_info()
-        
+
         return observation, reward, self.terminated, self.truncated, info
     
-    def render(self, mode: str = 'human'):
+    def render(self, mode: str = 'human') -> Optional[np.ndarray]:
         """
         Render the environment.
-        
+
         Args:
             mode: Rendering mode ('human' or 'rgb_array')
+
+        Returns:
+            RGB array if mode is 'rgb_array', None otherwise
         """
         if mode == 'rgb_array':
             return self._get_rgb_array()
         elif mode == 'human':
             # Override this method for custom rendering
             pass
+        return None
     
     def close(self):
         """Clean up resources."""
@@ -141,19 +151,57 @@ class BaseEnvironment(gym.Env):
     def _load_config(self, config: Dict[str, Any]):
         """
         Load configuration from nested YAML structure.
-        
+
         Args:
             config: Configuration dictionary
+
+        Raises:
+            ValueError: If config contains invalid values
         """
         # Load episode configuration
         env_config = config.get('environment', {})
         self.episode_length = env_config.get('episode_length', config.get('episode_length', 1000))
-        
+
+        # Validate episode_length
+        if not isinstance(self.episode_length, int) or self.episode_length < 0:
+            raise ValueError(f"episode_length must be a non-negative integer, got {self.episode_length}")
+
         # Load reward configuration
         reward_config = env_config.get('reward', {})
         self.reward_scale = reward_config.get('scale', 1.0)
+
+        # Validate reward_scale
+        if not isinstance(self.reward_scale, (int, float)):
+            raise ValueError(f"reward_scale must be a number, got {type(self.reward_scale)}")
+
         clip_enabled = reward_config.get('clip', False)
         self.reward_clip_range = reward_config.get('clip_range', [-10, 10]) if clip_enabled else None
+
+        # Validate reward_clip_range
+        if self.reward_clip_range is not None:
+            if not isinstance(self.reward_clip_range, (list, tuple)) or len(self.reward_clip_range) != 2:
+                raise ValueError(f"reward_clip_range must be a list/tuple of 2 numbers, got {self.reward_clip_range}")
+            if self.reward_clip_range[0] > self.reward_clip_range[1]:
+                raise ValueError(f"reward_clip_range[0] must be <= reward_clip_range[1]")
+
+    def _apply_reward_processing(self, reward: float) -> float:
+        """
+        Apply reward scaling and clipping.
+
+        Args:
+            reward: Raw reward value
+
+        Returns:
+            Processed reward
+        """
+        # Apply scaling
+        reward = reward * self.reward_scale
+
+        # Apply clipping if configured
+        if self.reward_clip_range is not None:
+            reward = np.clip(reward, self.reward_clip_range[0], self.reward_clip_range[1])
+
+        return reward
     
     def _get_initial_state(self) -> Any:
         """Get initial state. Override in subclass."""
@@ -191,11 +239,24 @@ class BaseEnvironment(gym.Env):
         return self.current_step >= self.episode_length
     
     def _get_info(self) -> Dict[str, Any]:
-        """Get additional info. Override in subclass."""
-        return {
+        """
+        Get additional info. Override in subclass.
+
+        Returns:
+            Dictionary with episode information
+        """
+        info = {
             'step': self.current_step,
-            'episode_length': self.episode_length
+            'episode_length': self.episode_length,
+            'episode_return': self.episode_return,
+            'episode_steps': self.episode_steps
         }
+
+        # Add success flag if episode is done
+        if self.terminated or self.truncated:
+            info['is_success'] = self.terminated
+
+        return info
     
     def _get_rgb_array(self) -> np.ndarray:
         """Get RGB array for rendering. Override in subclass."""
