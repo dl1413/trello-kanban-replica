@@ -151,6 +151,114 @@ flake8 environments/ tests/ examples/
 - Open an issue on GitHub
 - Contact the Verita AI RL team
 
+## Troubleshooting
+
+### Common Issues
+
+#### Import Errors
+
+**Problem:** `ModuleNotFoundError: No module named 'gymnasium'`
+```bash
+# Solution: Install dependencies
+pip install -r requirements.txt
+```
+
+**Problem:** `ImportError: cannot import name 'spaces'`
+```bash
+# Solution: Make sure you're using Gymnasium (not Gym)
+pip uninstall gym  # Remove old gym if installed
+pip install gymnasium==0.29.1
+```
+
+#### Gymnasium Version Conflicts
+
+**Problem:** `AttributeError: 'Env' object has no attribute 'np_random'`
+```bash
+# Solution: Upgrade to Gymnasium >= 0.29.0
+pip install --upgrade gymnasium==0.29.1
+```
+
+**Problem:** Deprecated warnings about old Gym API
+```bash
+# Solution: This framework uses modern Gymnasium API
+# Update your code to use 5-tuple returns: (obs, reward, terminated, truncated, info)
+```
+
+#### Installation Issues
+
+**Problem:** `pip install` fails on opencv-python
+```bash
+# Solution: Install without opencv or use headless version
+pip install opencv-python-headless==4.8.1.78
+# Or skip visualization features
+pip install gymnasium numpy pyyaml matplotlib pandas pytest
+```
+
+**Problem:** Tests fail with `ModuleNotFoundError: No module named 'pandas'`
+```bash
+# Solution: Install all test dependencies
+pip install -r requirements.txt
+```
+
+#### Runtime Issues
+
+**Problem:** "Episode is done. Call reset() to start a new episode"
+```bash
+# Solution: Always reset before starting new episode
+obs, info = env.reset()
+# Now you can call step()
+```
+
+**Problem:** "Invalid action X for space Discrete(4)"
+```bash
+# Solution: Ensure actions are within valid range
+action = env.action_space.sample()  # Always valid
+# Or check: 0 <= action < env.action_space.n
+```
+
+**Problem:** Memory issues with large Q-tables
+```bash
+# Solution: Use smaller grid sizes or reduce training episodes
+# For 20x20 grid, Q-table can grow to 400+ states
+config = {'grid_size': 10}  # Use smaller grid
+```
+
+#### Performance Issues
+
+**Problem:** Training is very slow
+```bash
+# Solution 1: Reduce episode length
+config = {'episode_length': 50}  # Instead of 200
+
+# Solution 2: Use fewer training episodes
+python examples/q_learning_agent.py --episodes 500
+
+# Solution 3: Disable rendering during training
+# Don't call env.render() in training loop
+```
+
+**Problem:** Tests take too long
+```bash
+# Solution: Run tests in parallel
+pytest tests/ -n auto  # Requires pytest-xdist
+
+# Or skip slow tests
+pytest tests/ -m "not slow"
+```
+
+### Getting More Help
+
+If you encounter issues not covered here:
+
+1. Check the [GitHub Issues](https://github.com/dl1413/trello-kanban-replica/issues)
+2. Review the [Testing Guidelines](docs/testing_guidelines.md)
+3. Consult the [API Reference](docs/api_reference.md)
+4. Open a new issue with:
+   - Python version (`python --version`)
+   - Installed packages (`pip freeze`)
+   - Full error traceback
+   - Minimal code to reproduce
+
 ## Contributing
 
 See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines on contributing to this project.
