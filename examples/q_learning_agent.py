@@ -9,7 +9,7 @@ improve over time compared to the random baseline.
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Optional
 from examples.simple_gridworld import SimpleGridWorld
 
 
@@ -28,7 +28,9 @@ class QLearningAgent:
         discount_factor: float = 0.99,
         epsilon: float = 1.0,
         epsilon_decay: float = 0.995,
-        epsilon_min: float = 0.01
+        epsilon_min: float = 0.01,
+        learning_rate_decay: Optional[float] = None,
+        seed: Optional[int] = None
     ):
         """
         Initialize Q-Learning agent.
@@ -40,13 +42,20 @@ class QLearningAgent:
             epsilon: Initial exploration rate
             epsilon_decay: Decay rate for epsilon
             epsilon_min: Minimum epsilon value
+            learning_rate_decay: Optional decay rate for learning rate (alpha)
+            seed: Random seed for reproducibility
         """
         self.action_space_size = action_space_size
         self.learning_rate = learning_rate
+        self.initial_learning_rate = learning_rate
         self.discount_factor = discount_factor
         self.epsilon = epsilon
         self.epsilon_decay = epsilon_decay
         self.epsilon_min = epsilon_min
+        self.learning_rate_decay = learning_rate_decay
+        
+        # Create seeded RNG for reproducibility
+        self.rng = np.random.default_rng(seed)
         
         # Q-table stored as nested dict: state -> action -> value
         self.q_table = defaultdict(lambda: np.zeros(action_space_size))
@@ -73,8 +82,8 @@ class QLearningAgent:
         state_key = self._state_to_key(state)
         
         # Epsilon-greedy exploration during training
-        if training and np.random.random() < self.epsilon:
-            return np.random.randint(self.action_space_size)
+        if training and self.rng.random() < self.epsilon:
+            return int(self.rng.integers(0, self.action_space_size))
         
         # Greedy action selection
         q_values = self.q_table[state_key]
@@ -117,8 +126,13 @@ class QLearningAgent:
         self.total_steps += 1
     
     def decay_epsilon(self):
-        """Decay exploration rate."""
+        """Decay exploration rate and optionally learning rate."""
         self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
+        
+        # Apply learning rate decay if configured
+        if self.learning_rate_decay is not None:
+            self.learning_rate = max(0.001, self.learning_rate * self.learning_rate_decay)
+        
         self.episodes_trained += 1
     
     def get_statistics(self) -> Dict[str, Any]:
@@ -127,8 +141,82 @@ class QLearningAgent:
             'total_steps': self.total_steps,
             'episodes_trained': self.episodes_trained,
             'epsilon': self.epsilon,
+            'learning_rate': self.learning_rate,
             'q_table_size': len(self.q_table)
         }
+    
+    def save(self, filepath: str):
+        """
+        Save Q-table to file.
+        
+        Args:
+            filepath: Path to save the Q-table
+        """
+        import json
+        
+        # Convert defaultdict to regular dict for JSON serialization
+        q_table_serializable = {
+            str(k): v.tolist() for k, v in self.q_table.items()
+        }
+        
+        save_data = {
+            'q_table': q_table_serializable,
+            'action_space_size': self.action_space_size,
+            'learning_rate': self.learning_rate,
+            'initial_learning_rate': self.initial_learning_rate,
+            'discount_factor': self.discount_factor,
+            'epsilon': self.epsilon,
+            'epsilon_decay': self.epsilon_decay,
+            'epsilon_min': self.epsilon_min,
+            'learning_rate_decay': self.learning_rate_decay,
+            'total_steps': self.total_steps,
+            'episodes_trained': self.episodes_trained
+        }
+        
+        with open(filepath, 'w') as f:
+            json.dump(save_data, f, indent=2)
+    
+    @classmethod
+    def load(cls, filepath: str, seed: Optional[int] = None) -> 'QLearningAgent':
+        """
+        Load Q-table from file.
+        
+        Args:
+            filepath: Path to load the Q-table from
+            seed: Optional seed for the loaded agent's RNG
+        
+        Returns:
+            Loaded QLearningAgent instance
+        """
+        import json
+        
+        with open(filepath, 'r') as f:
+            save_data = json.load(f)
+        
+        # Create agent with saved parameters
+        agent = cls(
+            action_space_size=save_data['action_space_size'],
+            learning_rate=save_data['learning_rate'],
+            discount_factor=save_data['discount_factor'],
+            epsilon=save_data['epsilon'],
+            epsilon_decay=save_data['epsilon_decay'],
+            epsilon_min=save_data['epsilon_min'],
+            learning_rate_decay=save_data.get('learning_rate_decay'),
+            seed=seed
+        )
+        
+        # Restore Q-table
+        agent.q_table = defaultdict(lambda: np.zeros(agent.action_space_size))
+        for k, v in save_data['q_table'].items():
+            # Convert string key back to tuple
+            agent.q_table[eval(k)] = np.array(v)
+        
+        # Restore statistics
+        agent.initial_learning_rate = save_data.get('initial_learning_rate', save_data['learning_rate'])
+        agent.total_steps = save_data.get('total_steps', 0)
+        agent.episodes_trained = save_data.get('episodes_trained', 0)
+        
+        return agent
 
 
 def train_q_learning(
@@ -221,7 +309,8 @@ def train_q_learning(
 def evaluate_agent(
     env: SimpleGridWorld,
     agent: QLearningAgent,
-    num_episodes: int = 100
+    num_episodes: int = 100,
+    max_steps: Optional[int] = None
 ) -> Dict[str, float]:
     """
     Evaluate agent performance without exploration.
@@ -230,10 +319,14 @@ def evaluate_agent(
         env: Environment instance
         agent: Trained agent
         num_episodes: Number of evaluation episodes
+        max_steps: Maximum steps per episode (defaults to env.episode_length)
     
     Returns:
         Evaluation metrics
     """
+    if max_steps is None:
+        max_steps = env.episode_length
+    
     rewards = []
     lengths = []
     successes = []
@@ -246,7 +339,7 @@ def evaluate_agent(
         terminated = False
         truncated = False
         
-        while not (terminated or truncated) and steps < 200:
+        while not (terminated or truncated) and steps < max_steps:
             # Greedy action selection (no exploration)
             action = agent.select_action(obs, training=False)
             obs, reward, terminated, truncated, info = env.step(action)
@@ -430,7 +523,7 @@ def main():
     print(f'  Mean Length: {random_eval["mean_length"]:.2f} ± {random_eval["std_length"]:.2f}')
     print(f'  Success Rate: {random_eval["success_rate"]:.2%}')
     
-    improvement = (final_eval["mean_reward"] - random_eval["mean_reward"]) / abs(random_eval["mean_reward"]) * 100 if random_eval["mean_reward"] != 0 else float('inf')
+    improvement = (final_eval["mean_reward"] - random_eval["mean_reward"]) / abs(random_eval["mean_reward"]) * 100 if abs(random_eval["mean_reward"]) > 1e-8 else float('inf')
     improvement_str = f'{improvement:+.1f}%' if improvement != float('inf') else '+∞%'
     print(f'\nImprovement over Random: {improvement_str}')
     

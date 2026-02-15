@@ -22,18 +22,20 @@ class BaseEnvironment(gym.Env):
     
     metadata = {'render_modes': ['human', 'rgb_array']}
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None, render_mode: Optional[str] = None):
         """
         Initialize the base environment.
         
         Args:
             config: Configuration dictionary for the environment
+            render_mode: Rendering mode ('human' or 'rgb_array')
         """
-        super(BaseEnvironment, self).__init__()
+        super().__init__()
         
         self.config = config or {}
         self._load_config(self.config)
         self.current_step = 0
+        self.episode_reward = 0.0
         
         # Define action and observation space
         # These should be overridden in derived classes
@@ -46,6 +48,7 @@ class BaseEnvironment(gym.Env):
         self.terminated = False
         self.truncated = False
         self._seed = None
+        self.render_mode = render_mode
         
     def reset(self, seed: Optional[int] = None, options: Optional[Dict[str, Any]] = None) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
@@ -65,6 +68,7 @@ class BaseEnvironment(gym.Env):
             self._seed = seed
         
         self.current_step = 0
+        self.episode_reward = 0.0
         self.terminated = False
         self.truncated = False
         self.state = self._get_initial_state()
@@ -107,6 +111,9 @@ class BaseEnvironment(gym.Env):
         if self.reward_clip_range is not None:
             reward = np.clip(reward, self.reward_clip_range[0], self.reward_clip_range[1])
         
+        # Accumulate episode reward
+        self.episode_reward += reward
+        
         # Check if episode is terminated or truncated
         self.terminated = self._is_terminated()
         self.truncated = self._is_truncated()
@@ -119,16 +126,16 @@ class BaseEnvironment(gym.Env):
         
         return observation, reward, self.terminated, self.truncated, info
     
-    def render(self, mode: str = 'human'):
+    def render(self):
         """
         Render the environment.
         
-        Args:
-            mode: Rendering mode ('human' or 'rgb_array')
+        Returns:
+            RGB array if render_mode is 'rgb_array', otherwise None
         """
-        if mode == 'rgb_array':
+        if self.render_mode == 'rgb_array':
             return self._get_rgb_array()
-        elif mode == 'human':
+        elif self.render_mode == 'human':
             # Override this method for custom rendering
             pass
     
@@ -192,10 +199,20 @@ class BaseEnvironment(gym.Env):
     
     def _get_info(self) -> Dict[str, Any]:
         """Get additional info. Override in subclass."""
-        return {
+        info = {
             'step': self.current_step,
-            'episode_length': self.episode_length
+            'episode_length': self.episode_length,
+            'episode_reward': self.episode_reward
         }
+        
+        # Add standard episode info at termination (SB3/CleanRL convention)
+        if self.terminated or self.truncated:
+            info['episode'] = {
+                'r': self.episode_reward,
+                'l': self.current_step
+            }
+        
+        return info
     
     def _get_rgb_array(self) -> np.ndarray:
         """Get RGB array for rendering. Override in subclass."""

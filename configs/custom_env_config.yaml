@@ -8,7 +8,7 @@ environment:
   observation:
     type: "vector"
     shape: [128]
-    normalize: true
+    # NOT YET IMPLEMENTED: normalize: true
     
   action:
     type: "continuous"
@@ -24,10 +24,10 @@ environment:
 training:
   seed: 123
   num_episodes: 5000
-  parallel_envs: 16
+  # NOT YET IMPLEMENTED: parallel_envs: 16
   
 logging:
-  tensorboard: true
-  wandb: true
+  # NOT YET IMPLEMENTED: tensorboard: true
+  # NOT YET IMPLEMENTED: wandb: true
   experiment_name: "custom_env_v1"
   log_interval: 5

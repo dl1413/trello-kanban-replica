@@ -15,6 +15,9 @@ def base_env():
     env.close()
 
 
+# Note: The following fixtures are available but not currently used in tests.
+# They're kept for future test improvements.
+
 @pytest.fixture
 def configured_env():
     """Fixture providing a configured environment."""

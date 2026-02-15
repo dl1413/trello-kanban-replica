@@ -149,10 +149,12 @@ class TestBaseEnvironment:
         env.reset()
         
         # Should not raise an error
-        env.render(mode='human')
+        env.render()
         
-        # RGB array mode should return array
-        result = env.render(mode='rgb_array')
+        # RGB array mode should return array when render_mode is set
+        env_rgb = BaseEnvironment(render_mode='rgb_array')
+        env_rgb.reset()
+        result = env_rgb.render()
         assert isinstance(result, np.ndarray)
     
     def test_close(self):

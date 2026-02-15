@@ -14,25 +14,25 @@ class SimpleGridWorld(BaseEnvironment):
     """
     A simple grid world environment where an agent navigates to a goal.
     
-    Observation: (x, y) position of the agent
+    Observation: (x, y) position of the agent (normalized to [0, 1])
     Actions: 0=up, 1=right, 2=down, 3=left
     Reward: -1 per step, +100 for reaching goal
     """
     
-    def __init__(self, config=None):
+    def __init__(self, config=None, render_mode=None):
         """Initialize the grid world environment."""
-        super().__init__(config)
+        # Grid dimensions - set before calling super().__init__()
+        self.grid_size = config.get('grid_size', 10) if config else 10
         
-        # Grid dimensions
-        self.grid_size = self.config.get('grid_size', 10)
+        super().__init__(config, render_mode)
         
         # Reward configuration
         self.reward_type = self.config.get('reward_type', 'sparse')
         
-        # Define spaces
+        # Define spaces - use Box with float32 and normalize to [0, 1]
         self.action_space = spaces.Discrete(4)
         self.observation_space = spaces.Box(
-            low=0, high=self.grid_size-1, shape=(2,), dtype=np.int32
+            low=0.0, high=1.0, shape=(2,), dtype=np.float32
         )
         
         # Initialize positions
@@ -63,17 +63,22 @@ class SimpleGridWorld(BaseEnvironment):
         return self.agent_pos.copy()
     
     def _get_observation(self):
-        """Return current agent position."""
-        return self.agent_pos.astype(np.int32)
+        """Return current agent position (normalized to [0, 1])."""
+        # Normalize position to [0, 1] range for neural network compatibility
+        if self.grid_size > 1:
+            normalized_pos = self.agent_pos.astype(np.float32) / (self.grid_size - 1)
+        else:
+            normalized_pos = self.agent_pos.astype(np.float32)
+        return normalized_pos
     
     def _update_state(self, action):
         """Update agent position based on action."""
-        # Map actions to movements
+        # Map actions to movements (use int32 for dtype consistency)
         movements = {
-            0: np.array([-1, 0]),  # up
-            1: np.array([0, 1]),   # right
-            2: np.array([1, 0]),   # down
-            3: np.array([0, -1])   # left
+            0: np.array([-1, 0], dtype=np.int32),  # up
+            1: np.array([0, 1], dtype=np.int32),   # right
+            2: np.array([1, 0], dtype=np.int32),   # down
+            3: np.array([0, -1], dtype=np.int32)   # left
         }
         
         # Calculate new position
@@ -120,9 +125,9 @@ class SimpleGridWorld(BaseEnvironment):
         })
         return info
     
-    def render(self, mode='human'):
+    def render(self):
         """Render the grid world."""
-        if mode == 'human':
+        if self.render_mode == 'human':
             # Create grid visualization
             grid = np.zeros((self.grid_size, self.grid_size), dtype=str)
             grid[:] = '.'

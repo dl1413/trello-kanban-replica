@@ -25,7 +25,9 @@ def train_random_agent(env, num_episodes=100):
     success_count = 0
     
     for episode in range(num_episodes):
-        obs, info = env.reset()
+        # Pass seed to the first reset call for reproducibility
+        seed_value = env.config.get('seed', 42) if episode == 0 else None
+        obs, info = env.reset(seed=seed_value)
         terminated = False
         truncated = False
         episode_reward = 0

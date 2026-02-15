@@ -1,6 +1,3 @@
-# Default environment configuration
-# This file contains default settings for RL environments
-
 environment:
   # Episode configuration
   episode_length: 1000
@@ -10,7 +7,7 @@ environment:
   observation:
     type: "image"  # image, vector, dict
     shape: [84, 84, 3]
-    normalize: true
+    # NOT YET IMPLEMENTED: normalize: true
     
   # Action space
   action:
@@ -34,11 +31,11 @@ environment:
 training:
   seed: 42
   num_episodes: 1000
-  parallel_envs: 8
+  # NOT YET IMPLEMENTED: parallel_envs: 8
   
 # Logging and monitoring
 logging:
-  tensorboard: true
-  wandb: false
+  # NOT YET IMPLEMENTED: tensorboard: true
+  # NOT YET IMPLEMENTED: wandb: false
   log_interval: 10
   save_interval: 100
