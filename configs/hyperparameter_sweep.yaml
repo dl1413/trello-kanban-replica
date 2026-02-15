@@ -1,0 +1,53 @@
+# Hyperparameter Sweep Configuration Template
+# Use this as a template for grid search or random search over hyperparameters
+
+environment:
+  grid_size: 10
+  episode_length: 100
+  reward_type: 'sparse'  # Try: ['sparse', 'dense']
+  randomize_goal: true
+  num_obstacles: 5
+
+# Hyperparameter search space
+agent:
+  # Learning rate search space
+  learning_rate: 0.1  # Try: [0.01, 0.05, 0.1, 0.2]
+  learning_rate_decay: 0.001  # Try: [0.0, 0.0005, 0.001, 0.002]
+  learning_rate_min: 0.01
+  
+  # Discount factor search space
+  discount_factor: 0.95  # Try: [0.9, 0.95, 0.99]
+  
+  # Exploration search space
+  epsilon: 1.0
+  epsilon_decay: 0.995  # Try: [0.99, 0.995, 0.998]
+  epsilon_min: 0.01  # Try: [0.01, 0.05, 0.1]
+  
+  # Exploration strategy
+  exploration_strategy: 'epsilon_greedy'  # Try: ['epsilon_greedy', 'boltzmann']
+  temperature: 1.0  # For Boltzmann, try: [0.5, 1.0, 2.0]
+  
+  # Algorithm variant
+  use_double_q: false  # Try: [false, true]
+
+training:
+  seed: 42  # Try different seeds: [42, 123, 456, 789, 1000]
+  num_episodes: 1000
+  eval_interval: 50
+  max_steps: 100
+
+# Example sweep configurations:
+# 1. Grid Search: Systematically try all combinations
+# 2. Random Search: Randomly sample from the ranges
+# 3. Bayesian Optimization: Use previous results to guide search
+# 4. Population-based: Train multiple agents in parallel
+
+# Example sweep script pseudocode:
+# for lr in [0.01, 0.05, 0.1, 0.2]:
+#     for gamma in [0.9, 0.95, 0.99]:
+#         for eps_decay in [0.99, 0.995, 0.998]:
+#             config = load_config('hyperparameter_sweep.yaml')
+#             config['agent']['learning_rate'] = lr
+#             config['agent']['discount_factor'] = gamma
+#             config['agent']['epsilon_decay'] = eps_decay
+#             train_and_evaluate(config)

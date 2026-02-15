@@ -1,0 +1,32 @@
+# Hard Configuration - Large grid with many obstacles
+# Challenging environment requiring advanced exploration
+
+environment:
+  grid_size: 20
+  episode_length: 200
+  reward_type: 'sparse'
+  randomize_goal: true
+  num_obstacles: 30
+  
+  reward:
+    scale: 1.0
+    clip: true
+    clip_range: [-10, 10]
+
+agent:
+  learning_rate: 0.05
+  learning_rate_decay: 0.0005
+  learning_rate_min: 0.005
+  discount_factor: 0.99
+  epsilon: 1.0
+  epsilon_decay: 0.998
+  epsilon_min: 0.01
+  exploration_strategy: 'epsilon_greedy'
+  temperature: 1.0
+  use_double_q: true  # Use Double Q-Learning for better value estimates
+
+training:
+  seed: 42
+  num_episodes: 5000
+  eval_interval: 100
+  max_steps: 200

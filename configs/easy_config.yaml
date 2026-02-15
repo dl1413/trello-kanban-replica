@@ -1,0 +1,32 @@
+# Easy Configuration - Small grid, sparse obstacles
+# Good for initial learning and debugging
+
+environment:
+  grid_size: 5
+  episode_length: 50
+  reward_type: 'dense'  # Provide shaping for easier learning
+  randomize_goal: false
+  num_obstacles: 0
+  
+  reward:
+    scale: 1.0
+    clip: false
+    clip_range: [-10, 10]
+
+agent:
+  learning_rate: 0.15
+  learning_rate_decay: 0.0
+  learning_rate_min: 0.01
+  discount_factor: 0.95
+  epsilon: 1.0
+  epsilon_decay: 0.99
+  epsilon_min: 0.05
+  exploration_strategy: 'epsilon_greedy'
+  temperature: 1.0
+  use_double_q: false
+
+training:
+  seed: 42
+  num_episodes: 200
+  eval_interval: 20
+  max_steps: 50
