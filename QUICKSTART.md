@@ -153,6 +153,24 @@ flake8 environments/ tests/ examples/
 
 ## Troubleshooting
 
+### Security Notes
+
+#### Weights & Biases (wandb)
+
+**Note**: WandB versions <= 0.17.0 have a known SSRF vulnerability. This dependency has been removed from the default requirements.
+
+If you need WandB for experiment tracking:
+```bash
+# Install a newer version manually
+pip install "wandb>=0.18.0"
+```
+
+Alternatively, use TensorBoard (included by default):
+```python
+# TensorBoard is included in requirements.txt
+tensorboard --logdir=./runs
+```
+
 ### Common Issues
 
 #### Import Errors

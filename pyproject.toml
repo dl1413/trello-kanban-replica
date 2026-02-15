@@ -49,7 +49,8 @@ viz = [
 ]
 monitoring = [
     "tensorboard==2.13.0",
-    "wandb==0.15.12",
+    # wandb excluded due to SSRF vulnerability (CVE advisory for versions <= 0.17.0)
+    # Install separately if needed: pip install "wandb>=0.18.0"
 ]
 
 [project.urls]

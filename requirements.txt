@@ -16,7 +16,8 @@ flake8==7.0.0
 
 # Monitoring and logging
 tensorboard==2.13.0
-wandb==0.15.12
+# wandb removed due to SSRF vulnerability in versions <= 0.17.0
+# Install manually if needed: pip install wandb>=0.18.0
 
 # Utilities
 tqdm==4.66.1
