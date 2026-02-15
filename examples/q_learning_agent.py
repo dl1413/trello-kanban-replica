@@ -14,6 +14,7 @@ from examples.simple_gridworld import SimpleGridWorld
 import pickle
 import json
 import yaml
+import ast
 
 
 class QLearningAgent:
@@ -283,8 +284,8 @@ class QLearningAgent:
         # Restore Q-table
         self.q_table = defaultdict(lambda: np.zeros(self.action_space_size))
         for k, v in data['q_table'].items():
-            # Convert string key back to tuple
-            key = eval(k)
+            # Convert string key back to tuple safely
+            key = ast.literal_eval(k)
             self.q_table[key] = np.array(v)
         
         # Restore config

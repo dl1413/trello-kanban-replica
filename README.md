@@ -2,8 +2,6 @@
 
 ![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
-![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 
 A comprehensive framework for developing and managing reinforcement learning environments at Verita AI, built on **Gymnasium** (the modern successor to OpenAI Gym).
 
