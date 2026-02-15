@@ -157,11 +157,13 @@ class QLearningAgent:
         # Convert defaultdict to regular dict for JSON serialization
         q_table_serializable = {}
         for k, v in self.q_table.items():
+            # Convert key tuple to use Python ints (not numpy ints) for safe serialization
+            key_str = str(tuple(int(x) if hasattr(x, 'item') else x for x in k))
             # Convert numpy arrays to lists, handle both arrays and lists
             if hasattr(v, 'tolist'):
-                q_table_serializable[str(k)] = v.tolist()
+                q_table_serializable[key_str] = v.tolist()
             else:
-                q_table_serializable[str(k)] = list(v)
+                q_table_serializable[key_str] = list(v)
         
         save_data = {
             'q_table': q_table_serializable,
@@ -193,6 +195,7 @@ class QLearningAgent:
             Loaded QLearningAgent instance
         """
         import json
+        import ast
         
         with open(filepath, 'r') as f:
             save_data = json.load(f)
@@ -212,8 +215,8 @@ class QLearningAgent:
         # Restore Q-table
         agent.q_table = defaultdict(lambda: np.zeros(agent.action_space_size))
         for k, v in save_data['q_table'].items():
-            # Convert string key back to tuple
-            agent.q_table[eval(k)] = np.array(v)
+            # Safely convert string key back to tuple using ast.literal_eval
+            agent.q_table[ast.literal_eval(k)] = np.array(v)
         
         # Restore statistics
         agent.initial_learning_rate = save_data.get('initial_learning_rate', save_data['learning_rate'])
