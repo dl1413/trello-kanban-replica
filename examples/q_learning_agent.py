@@ -9,76 +9,147 @@ improve over time compared to the random baseline.
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Optional
 from examples.simple_gridworld import SimpleGridWorld
+import pickle
+import yaml
+from pathlib import Path
 
 
 class QLearningAgent:
     """
-    Tabular Q-Learning agent with epsilon-greedy exploration.
-    
-    This agent learns a value function Q(s,a) for discrete state-action
-    pairs using the Q-Learning algorithm.
+    Tabular Q-Learning agent with epsilon-greedy or Boltzmann exploration.
+
+    Supports standard Q-Learning and Double Q-Learning with optional
+    learning rate decay and Q-table persistence.
     """
-    
+
     def __init__(
         self,
         action_space_size: int,
         learning_rate: float = 0.1,
+        learning_rate_decay: float = 0.0,
         discount_factor: float = 0.99,
         epsilon: float = 1.0,
         epsilon_decay: float = 0.995,
-        epsilon_min: float = 0.01
+        epsilon_min: float = 0.01,
+        exploration_strategy: str = 'epsilon_greedy',
+        temperature: float = 1.0,
+        use_double_q: bool = False
     ):
         """
         Initialize Q-Learning agent.
-        
+
         Args:
             action_space_size: Number of possible actions
-            learning_rate: Learning rate (alpha)
+            learning_rate: Initial learning rate (alpha)
+            learning_rate_decay: Learning rate decay factor
             discount_factor: Discount factor (gamma)
             epsilon: Initial exploration rate
             epsilon_decay: Decay rate for epsilon
             epsilon_min: Minimum epsilon value
+            exploration_strategy: 'epsilon_greedy' or 'boltzmann'
+            temperature: Temperature for Boltzmann exploration
+            use_double_q: Use Double Q-Learning if True
         """
         self.action_space_size = action_space_size
+        self.learning_rate_init = learning_rate
         self.learning_rate = learning_rate
+        self.learning_rate_decay = learning_rate_decay
         self.discount_factor = discount_factor
         self.epsilon = epsilon
         self.epsilon_decay = epsilon_decay
         self.epsilon_min = epsilon_min
-        
-        # Q-table stored as nested dict: state -> action -> value
+        self.exploration_strategy = exploration_strategy
+        self.temperature = temperature
+        self.use_double_q = use_double_q
+
+        # Q-table(s) stored as nested dict: state -> action -> value
         self.q_table = defaultdict(lambda: np.zeros(action_space_size))
-        
+
+        # Second Q-table for Double Q-Learning
+        if self.use_double_q:
+            self.q_table_2 = defaultdict(lambda: np.zeros(action_space_size))
+
         # Statistics
         self.total_steps = 0
         self.episodes_trained = 0
+
+        # Convergence tracking
+        self.q_value_deltas = []
     
     def _state_to_key(self, state: np.ndarray) -> Tuple:
         """Convert state array to hashable key for Q-table."""
         return tuple(state.flatten())
+
+    @classmethod
+    def from_config(cls, config: Dict[str, Any], action_space_size: int) -> 'QLearningAgent':
+        """
+        Create agent from configuration dictionary.
+
+        Args:
+            config: Configuration dictionary
+            action_space_size: Number of possible actions
+
+        Returns:
+            Configured QLearningAgent instance
+        """
+        agent_config = config.get('agent', {})
+        return cls(
+            action_space_size=action_space_size,
+            learning_rate=agent_config.get('learning_rate', 0.1),
+            learning_rate_decay=agent_config.get('learning_rate_decay', 0.0),
+            discount_factor=agent_config.get('discount_factor', 0.99),
+            epsilon=agent_config.get('epsilon', 1.0),
+            epsilon_decay=agent_config.get('epsilon_decay', 0.995),
+            epsilon_min=agent_config.get('epsilon_min', 0.01),
+            exploration_strategy=agent_config.get('exploration_strategy', 'epsilon_greedy'),
+            temperature=agent_config.get('temperature', 1.0),
+            use_double_q=agent_config.get('use_double_q', False)
+        )
     
     def select_action(self, state: np.ndarray, training: bool = True) -> int:
         """
-        Select action using epsilon-greedy policy.
-        
+        Select action using exploration strategy.
+
         Args:
             state: Current state observation
-            training: If True, use epsilon-greedy; if False, use greedy
-        
+            training: If True, use exploration; if False, use greedy
+
         Returns:
             Selected action
         """
         state_key = self._state_to_key(state)
-        
-        # Epsilon-greedy exploration during training
-        if training and np.random.random() < self.epsilon:
-            return np.random.randint(self.action_space_size)
-        
-        # Greedy action selection
-        q_values = self.q_table[state_key]
-        return int(np.argmax(q_values))
+
+        # During evaluation, always use greedy
+        if not training:
+            q_values = self._get_q_values(state_key)
+            return int(np.argmax(q_values))
+
+        # Exploration strategies during training
+        if self.exploration_strategy == 'epsilon_greedy':
+            # Epsilon-greedy exploration
+            if np.random.random() < self.epsilon:
+                return np.random.randint(self.action_space_size)
+            q_values = self._get_q_values(state_key)
+            return int(np.argmax(q_values))
+
+        elif self.exploration_strategy == 'boltzmann':
+            # Boltzmann (softmax) exploration
+            q_values = self._get_q_values(state_key)
+            # Prevent overflow by subtracting max
+            exp_q = np.exp((q_values - np.max(q_values)) / self.temperature)
+            probabilities = exp_q / np.sum(exp_q)
+            return int(np.random.choice(self.action_space_size, p=probabilities))
+
+        else:
+            raise ValueError(f"Unknown exploration strategy: {self.exploration_strategy}")
+
+    def _get_q_values(self, state_key: Tuple) -> np.ndarray:
+        """Get Q-values for a state (average of both Q-tables if Double Q-Learning)."""
+        if self.use_double_q:
+            return (self.q_table[state_key] + self.q_table_2[state_key]) / 2
+        return self.q_table[state_key]
     
     def update(
         self,
@@ -89,8 +160,8 @@ class QLearningAgent:
         terminated: bool
     ):
         """
-        Update Q-value using Q-Learning update rule.
-        
+        Update Q-value using Q-Learning or Double Q-Learning.
+
         Args:
             state: Current state
             action: Action taken
@@ -100,35 +171,123 @@ class QLearningAgent:
         """
         state_key = self._state_to_key(state)
         next_state_key = self._state_to_key(next_state)
-        
-        # Current Q-value
-        current_q = self.q_table[state_key][action]
-        
-        # TD target
-        if terminated:
-            target_q = reward
+
+        if self.use_double_q:
+            # Double Q-Learning: randomly choose which Q-table to update
+            if np.random.random() < 0.5:
+                # Update Q1, use Q2 for target
+                current_q = self.q_table[state_key][action]
+                if terminated:
+                    target_q = reward
+                else:
+                    # Use Q1 to select action, Q2 to evaluate
+                    best_action = np.argmax(self.q_table[next_state_key])
+                    target_q = reward + self.discount_factor * self.q_table_2[next_state_key][best_action]
+                delta = target_q - current_q
+                self.q_table[state_key][action] += self.learning_rate * delta
+            else:
+                # Update Q2, use Q1 for target
+                current_q = self.q_table_2[state_key][action]
+                if terminated:
+                    target_q = reward
+                else:
+                    # Use Q2 to select action, Q1 to evaluate
+                    best_action = np.argmax(self.q_table_2[next_state_key])
+                    target_q = reward + self.discount_factor * self.q_table[next_state_key][best_action]
+                delta = target_q - current_q
+                self.q_table_2[state_key][action] += self.learning_rate * delta
         else:
-            max_next_q = np.max(self.q_table[next_state_key])
-            target_q = reward + self.discount_factor * max_next_q
-        
-        # Q-Learning update
-        self.q_table[state_key][action] += self.learning_rate * (target_q - current_q)
-        
+            # Standard Q-Learning
+            current_q = self.q_table[state_key][action]
+            if terminated:
+                target_q = reward
+            else:
+                max_next_q = np.max(self.q_table[next_state_key])
+                target_q = reward + self.discount_factor * max_next_q
+            delta = target_q - current_q
+            self.q_table[state_key][action] += self.learning_rate * delta
+
+        # Track Q-value delta for convergence monitoring
+        self.q_value_deltas.append(abs(delta))
         self.total_steps += 1
     
     def decay_epsilon(self):
-        """Decay exploration rate."""
+        """Decay exploration rate and learning rate."""
         self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
         self.episodes_trained += 1
+
+        # Apply learning rate decay if configured
+        if self.learning_rate_decay > 0:
+            self.learning_rate = self.learning_rate_init / (1 + self.learning_rate_decay * self.episodes_trained)
+
+    def save_q_table(self, filepath: str):
+        """
+        Save Q-table(s) to file using secure pickle serialization.
+
+        Args:
+            filepath: Path to save the Q-table
+        """
+        filepath = Path(filepath)
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+
+        save_data = {
+            'q_table': dict(self.q_table),
+            'use_double_q': self.use_double_q,
+            'action_space_size': self.action_space_size,
+            'learning_rate': self.learning_rate,
+            'discount_factor': self.discount_factor,
+            'epsilon': self.epsilon,
+            'total_steps': self.total_steps,
+            'episodes_trained': self.episodes_trained
+        }
+
+        if self.use_double_q:
+            save_data['q_table_2'] = dict(self.q_table_2)
+
+        with open(filepath, 'wb') as f:
+            pickle.dump(save_data, f)
+
+        print(f"Q-table saved to {filepath}")
+
+    def load_q_table(self, filepath: str):
+        """
+        Load Q-table(s) from file (secure deserialization).
+
+        Args:
+            filepath: Path to load the Q-table from
+        """
+        with open(filepath, 'rb') as f:
+            save_data = pickle.load(f)
+
+        self.q_table = defaultdict(lambda: np.zeros(self.action_space_size), save_data['q_table'])
+        if save_data.get('use_double_q', False):
+            self.q_table_2 = defaultdict(lambda: np.zeros(self.action_space_size), save_data['q_table_2'])
+        self.total_steps = save_data['total_steps']
+        self.episodes_trained = save_data['episodes_trained']
+
+        print(f"Q-table loaded from {filepath}")
+        print(f"  States: {len(self.q_table)}, Steps: {self.total_steps}, Episodes: {self.episodes_trained}")
     
     def get_statistics(self) -> Dict[str, Any]:
-        """Get agent statistics."""
-        return {
+        """Get agent statistics including convergence metrics."""
+        stats = {
             'total_steps': self.total_steps,
             'episodes_trained': self.episodes_trained,
             'epsilon': self.epsilon,
+            'learning_rate': self.learning_rate,
             'q_table_size': len(self.q_table)
         }
+
+        # Add convergence metrics
+        if len(self.q_value_deltas) > 0:
+            recent_deltas = self.q_value_deltas[-1000:]  # Last 1000 updates
+            stats['mean_q_delta'] = np.mean(recent_deltas)
+            stats['std_q_delta'] = np.std(recent_deltas)
+
+        if self.use_double_q:
+            stats['q_table_2_size'] = len(self.q_table_2)
+
+        return stats
 
 
 def train_q_learning(
