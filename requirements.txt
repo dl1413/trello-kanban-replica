@@ -19,3 +19,7 @@ wandb>=0.15.0
 
 # Utilities
 tqdm>=4.65.0
+
+# Optional: Deep Learning (for DQN and other deep RL algorithms)
+# Uncomment the line below to enable DQN and deep RL features:
+# torch>=2.0.0
