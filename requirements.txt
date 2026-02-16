@@ -21,5 +21,6 @@ wandb>=0.15.0
 tqdm>=4.65.0
 
 # Optional: Deep Learning (for DQN and other deep RL algorithms)
-# Uncomment the line below to enable DQN and deep RL features:
+# Required for: examples/dqn_agent.py and deep RL features
+# Install with: pip install torch>=2.0.0 or pip install -e ".[torch]"
 # torch>=2.0.0
