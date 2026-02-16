@@ -14,10 +14,7 @@ def main():
     """Demonstrate usage of vectorized environments."""
 
     # Configuration for environments
-    config = {
-        'grid_size': 8,
-        'episode_length': 100
-    }
+    config = {"grid_size": 8, "episode_length": 100}
 
     # Factory function to create environments
     def env_fn():
@@ -106,7 +103,7 @@ def main():
 
     # Create environment with short episodes
     def short_env_fn():
-        return SimpleGridWorld({'grid_size': 5, 'episode_length': 5})
+        return SimpleGridWorld({"grid_size": 5, "episode_length": 5})
 
     vec_env = SyncVectorEnv(short_env_fn, num_envs=2)
     vec_env.reset(seed=123)

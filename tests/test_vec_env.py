@@ -23,7 +23,7 @@ class SimpleTestEnv(BaseEnvironment):
         super().__init__(config)
         self.action_space = spaces.Discrete(4)
         self.observation_space = spaces.Box(low=0, high=10, shape=(2,), dtype=np.float32)
-        self.episode_length = self.config.get('episode_length', 10)
+        self.episode_length = self.config.get("episode_length", 10)
         self.reset_count = 0
 
     def _get_initial_state(self):
@@ -51,8 +51,8 @@ class SimpleTestEnv(BaseEnvironment):
     def _get_info(self):
         """Return basic info."""
         return {
-            'step': self.current_step,
-            'reset_count': self.reset_count,
+            "step": self.current_step,
+            "reset_count": self.reset_count,
         }
 
 
@@ -65,7 +65,7 @@ def num_envs():
 @pytest.fixture
 def env_fn():
     """Factory function for creating test environments."""
-    return lambda: SimpleTestEnv({'episode_length': 10})
+    return lambda: SimpleTestEnv({"episode_length": 10})
 
 
 class TestSyncVectorEnv:
@@ -103,8 +103,9 @@ class TestSyncVectorEnv:
 
     def test_reset_with_seed(self, num_envs):
         """Test that reset with seed produces reproducible results."""
+
         def seeded_env_fn():
-            return SimpleTestEnv({'episode_length': 10})
+            return SimpleTestEnv({"episode_length": 10})
 
         vec_env1 = SyncVectorEnv(seeded_env_fn, num_envs)
         vec_env2 = SyncVectorEnv(seeded_env_fn, num_envs)
@@ -191,9 +192,9 @@ class TestSyncVectorEnv:
 
         # Check that final observations are stored in info
         for info in infos:
-            assert 'final_observation' in info
-            assert info['_final_observation']
-            assert info['final_observation'][0] >= 10.0
+            assert "final_observation" in info
+            assert info["_final_observation"]
+            assert info["final_observation"][0] >= 10.0
 
         # Observations should be from reset (back to [0, 0])
         assert np.all(obs[:, 0] == 0.0)
@@ -202,8 +203,9 @@ class TestSyncVectorEnv:
 
     def test_auto_reset_on_truncation(self):
         """Test that environments automatically reset when truncated."""
+
         def short_env_fn():
-            return SimpleTestEnv({'episode_length': 3})
+            return SimpleTestEnv({"episode_length": 3})
 
         vec_env = SyncVectorEnv(short_env_fn, num_envs=2)
         vec_env.reset()
@@ -214,7 +216,7 @@ class TestSyncVectorEnv:
 
         # Should be truncated
         assert all(truncated)
-        assert 'final_observation' in infos[0]
+        assert "final_observation" in infos[0]
         assert np.all(obs == 0.0)  # Reset to initial state
 
         vec_env.close()
@@ -265,7 +267,7 @@ class TestSyncVectorEnv:
             obs, rewards, terminated, truncated, infos = vec_env.step(actions)
 
             # Count resets (when final_observation is present)
-            total_resets += sum(1 for info in infos if '_final_observation' in info)
+            total_resets += sum(1 for info in infos if "_final_observation" in info)
 
         # Should have had multiple resets
         assert total_resets > 0
@@ -312,8 +314,9 @@ class TestAsyncVectorEnv:
 
     def test_reset_with_seed(self, num_envs):
         """Test that reset with seed produces reproducible results."""
+
         def seeded_env_fn():
-            return SimpleTestEnv({'episode_length': 10})
+            return SimpleTestEnv({"episode_length": 10})
 
         vec_env1 = AsyncVectorEnv(seeded_env_fn, num_envs)
         vec_env2 = AsyncVectorEnv(seeded_env_fn, num_envs)
@@ -399,9 +402,9 @@ class TestAsyncVectorEnv:
 
         # Check that final observations are stored in info
         for info in infos:
-            assert 'final_observation' in info
-            assert info['_final_observation']
-            assert info['final_observation'][0] >= 10.0
+            assert "final_observation" in info
+            assert info["_final_observation"]
+            assert info["final_observation"][0] >= 10.0
 
         # Observations should be from reset (back to [0, 0])
         assert np.all(obs[:, 0] == 0.0)
@@ -410,8 +413,9 @@ class TestAsyncVectorEnv:
 
     def test_auto_reset_on_truncation(self):
         """Test that environments automatically reset when truncated."""
+
         def short_env_fn():
-            return SimpleTestEnv({'episode_length': 3})
+            return SimpleTestEnv({"episode_length": 3})
 
         vec_env = AsyncVectorEnv(short_env_fn, num_envs=2)
         vec_env.reset()
@@ -422,7 +426,7 @@ class TestAsyncVectorEnv:
 
         # Should be truncated
         assert all(truncated)
-        assert 'final_observation' in infos[0]
+        assert "final_observation" in infos[0]
         assert np.all(obs == 0.0)  # Reset to initial state
 
         vec_env.close()
@@ -488,7 +492,7 @@ class TestAsyncVectorEnv:
             obs, rewards, terminated, truncated, infos = vec_env.step(actions)
 
             # Count resets (when final_observation is present)
-            total_resets += sum(1 for info in infos if '_final_observation' in info)
+            total_resets += sum(1 for info in infos if "_final_observation" in info)
 
         # Should have had multiple resets
         assert total_resets > 0
@@ -533,8 +537,9 @@ class TestVectorEnvComparison:
 
     def test_identical_results_with_seed(self):
         """Test that sync and async produce same results with same seed."""
+
         def env_fn():
-            return SimpleTestEnv({'episode_length': 10})
+            return SimpleTestEnv({"episode_length": 10})
 
         num_envs = 4
         seed = 42
@@ -561,14 +566,11 @@ class TestVectorEnvComparison:
 
         # Compare trajectories
         for i, (sync_o, async_o) in enumerate(zip(sync_trajectory, async_trajectory)):
-            np.testing.assert_array_equal(
-                sync_o, async_o,
-                err_msg=f"Observations differ at step {i}"
-            )
+            np.testing.assert_array_equal(sync_o, async_o, err_msg=f"Observations differ at step {i}")
 
         sync_env.close()
         async_env.close()
 
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

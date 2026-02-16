@@ -17,7 +17,7 @@ def run_demo():
     print("=" * 80)
 
     # Create a GridWorld environment
-    env = SimpleGridWorld({'episode_length': 50, 'reward_type': 'dense'})
+    env = SimpleGridWorld({"episode_length": 50, "reward_type": "dense"})
 
     # Wrap it with curriculum learning
     curriculum_env = CurriculumWrapper(
@@ -28,7 +28,7 @@ def run_demo():
         failure_threshold=0.3,
         difficulty_step=0.2,
         min_episodes_before_change=5,
-        enable_decrease=True
+        enable_decrease=True,
     )
 
     print(f"\nInitial Configuration:")
@@ -70,10 +70,12 @@ def run_demo():
                 if terminated or truncated:
                     break
 
-        print(f"  Episode {episode + 1:2d}: Reward={total_reward:6.1f}, "
-              f"Success={info.get('goal_reached', False)}, "
-              f"Difficulty={info['curriculum_difficulty']:.2f}, "
-              f"SuccessRate={info['curriculum_success_rate']:.2f}")
+        print(
+            f"  Episode {episode + 1:2d}: Reward={total_reward:6.1f}, "
+            f"Success={info.get('goal_reached', False)}, "
+            f"Difficulty={info['curriculum_difficulty']:.2f}, "
+            f"SuccessRate={info['curriculum_success_rate']:.2f}"
+        )
 
     # Phase 2: Improving performance (60% success)
     print("\nPhase 2: Learning (60% success rate)")
@@ -99,10 +101,12 @@ def run_demo():
                 if terminated or truncated:
                     break
 
-        print(f"  Episode {episode + 1:2d}: Reward={total_reward:6.1f}, "
-              f"Success={info.get('goal_reached', False)}, "
-              f"Difficulty={info['curriculum_difficulty']:.2f}, "
-              f"SuccessRate={info['curriculum_success_rate']:.2f}")
+        print(
+            f"  Episode {episode + 1:2d}: Reward={total_reward:6.1f}, "
+            f"Success={info.get('goal_reached', False)}, "
+            f"Difficulty={info['curriculum_difficulty']:.2f}, "
+            f"SuccessRate={info['curriculum_success_rate']:.2f}"
+        )
 
     # Phase 3: Good performance (80% success)
     print("\nPhase 3: Mastery (80% success rate)")
@@ -128,10 +132,12 @@ def run_demo():
                 if terminated or truncated:
                     break
 
-        print(f"  Episode {episode + 1:2d}: Reward={total_reward:6.1f}, "
-              f"Success={info.get('goal_reached', False)}, "
-              f"Difficulty={info['curriculum_difficulty']:.2f}, "
-              f"SuccessRate={info['curriculum_success_rate']:.2f}")
+        print(
+            f"  Episode {episode + 1:2d}: Reward={total_reward:6.1f}, "
+            f"Success={info.get('goal_reached', False)}, "
+            f"Difficulty={info['curriculum_difficulty']:.2f}, "
+            f"SuccessRate={info['curriculum_success_rate']:.2f}"
+        )
 
     print("\n" + "=" * 80)
     print("Demo Complete!")
@@ -145,5 +151,5 @@ def run_demo():
     print("=" * 80)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_demo()

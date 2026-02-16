@@ -17,6 +17,7 @@ try:
     import torch.nn as nn
     import torch.nn.functional as F
     import torch.optim as optim
+
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
@@ -97,14 +98,7 @@ class ReplayBuffer:
         self.capacity = capacity
         self.buffer = deque(maxlen=capacity)
 
-    def add(
-        self,
-        state: np.ndarray,
-        action: int,
-        reward: float,
-        next_state: np.ndarray,
-        done: bool
-    ):
+    def add(self, state: np.ndarray, action: int, reward: float, next_state: np.ndarray, done: bool):
         """
         Add a transition to the buffer.
 
@@ -172,7 +166,7 @@ class DQNAgent:
         target_update_freq: int = 100,
         tau: Optional[float] = None,
         grad_clip: float = 1.0,
-        device: Optional[str] = None
+        device: Optional[str] = None,
     ):
         """
         Initialize DQN agent.
@@ -258,14 +252,7 @@ class DQNAgent:
             q_values = self.q_network(state_tensor)
             return int(q_values.argmax(dim=1).item())
 
-    def update(
-        self,
-        state: np.ndarray,
-        action: int,
-        reward: float,
-        next_state: np.ndarray,
-        done: bool
-    ):
+    def update(self, state: np.ndarray, action: int, reward: float, next_state: np.ndarray, done: bool):
         """
         Add transition to replay buffer.
 
@@ -363,25 +350,25 @@ class DQNAgent:
             path: Path to save checkpoint
         """
         checkpoint = {
-            'q_network_state_dict': self.q_network.state_dict(),
-            'target_network_state_dict': self.target_network.state_dict(),
-            'optimizer_state_dict': self.optimizer.state_dict(),
-            'epsilon': self.epsilon,
-            'total_steps': self.total_steps,
-            'episodes_trained': self.episodes_trained,
-            'update_count': self.update_count,
-            'config': {
-                'state_dim': self.state_dim,
-                'action_dim': self.action_dim,
-                'discount_factor': self.discount_factor,
-                'batch_size': self.batch_size,
-                'target_update_freq': self.target_update_freq,
-                'tau': self.tau,
-                'grad_clip': self.grad_clip,
-                'epsilon_start': self.epsilon_start,
-                'epsilon_end': self.epsilon_end,
-                'epsilon_decay_steps': self.epsilon_decay_steps,
-            }
+            "q_network_state_dict": self.q_network.state_dict(),
+            "target_network_state_dict": self.target_network.state_dict(),
+            "optimizer_state_dict": self.optimizer.state_dict(),
+            "epsilon": self.epsilon,
+            "total_steps": self.total_steps,
+            "episodes_trained": self.episodes_trained,
+            "update_count": self.update_count,
+            "config": {
+                "state_dim": self.state_dim,
+                "action_dim": self.action_dim,
+                "discount_factor": self.discount_factor,
+                "batch_size": self.batch_size,
+                "target_update_freq": self.target_update_freq,
+                "tau": self.tau,
+                "grad_clip": self.grad_clip,
+                "epsilon_start": self.epsilon_start,
+                "epsilon_end": self.epsilon_end,
+                "epsilon_decay_steps": self.epsilon_decay_steps,
+            },
         }
         torch.save(checkpoint, path)
 
@@ -393,23 +380,23 @@ class DQNAgent:
             path: Path to load checkpoint from
         """
         checkpoint = torch.load(path, map_location=self.device)
-        self.q_network.load_state_dict(checkpoint['q_network_state_dict'])
-        self.target_network.load_state_dict(checkpoint['target_network_state_dict'])
-        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        self.epsilon = checkpoint['epsilon']
-        self.total_steps = checkpoint['total_steps']
-        self.episodes_trained = checkpoint['episodes_trained']
-        self.update_count = checkpoint['update_count']
+        self.q_network.load_state_dict(checkpoint["q_network_state_dict"])
+        self.target_network.load_state_dict(checkpoint["target_network_state_dict"])
+        self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        self.epsilon = checkpoint["epsilon"]
+        self.total_steps = checkpoint["total_steps"]
+        self.episodes_trained = checkpoint["episodes_trained"]
+        self.update_count = checkpoint["update_count"]
 
     def get_statistics(self) -> Dict[str, Any]:
         """Get agent statistics."""
         return {
-            'total_steps': self.total_steps,
-            'episodes_trained': self.episodes_trained,
-            'epsilon': self.epsilon,
-            'update_count': self.update_count,
-            'buffer_size': len(self.replay_buffer),
-            'mean_loss': np.mean(self.losses[-100:]) if self.losses else 0.0
+            "total_steps": self.total_steps,
+            "episodes_trained": self.episodes_trained,
+            "epsilon": self.epsilon,
+            "update_count": self.update_count,
+            "buffer_size": len(self.replay_buffer),
+            "mean_loss": np.mean(self.losses[-100:]) if self.losses else 0.0,
         }
 
 
@@ -435,7 +422,7 @@ def train_dqn(
     max_steps: int = 200,
     train_freq: int = 1,
     eval_interval: int = 50,
-    verbose: bool = True
+    verbose: bool = True,
 ) -> Dict[str, Any]:
     """
     Train DQN agent on the environment.
@@ -501,14 +488,14 @@ def train_dqn(
         episode_losses.append(np.mean(episode_loss) if episode_loss else 0.0)
         epsilon_history.append(agent.epsilon)
 
-        if info.get('goal_reached', False):
+        if info.get("goal_reached", False):
             success_count += 1
 
         # Evaluation
         if (episode + 1) % eval_interval == 0:
             eval_stats = evaluate_dqn_agent(env, agent, num_episodes=20)
-            eval_rewards.append(eval_stats['mean_reward'])
-            eval_success_rates.append(eval_stats['success_rate'])
+            eval_rewards.append(eval_stats["mean_reward"])
+            eval_success_rates.append(eval_stats["success_rate"])
 
             if verbose:
                 avg_reward = np.mean(episode_rewards[-eval_interval:])
@@ -517,33 +504,31 @@ def train_dqn(
                 success_rate = success_count / (episode + 1)
                 agent_stats = agent.get_statistics()
 
-                print(f'Episode {episode + 1}/{num_episodes} | '
-                      f'Reward: {avg_reward:.2f} | '
-                      f'Length: {avg_length:.2f} | '
-                      f'Loss: {avg_loss:.4f} | '
-                      f'Success: {success_rate:.2%} | '
-                      f'Epsilon: {agent.epsilon:.3f} | '
-                      f'Buffer: {agent_stats["buffer_size"]} | '
-                      f'Eval Reward: {eval_stats["mean_reward"]:.2f} | '
-                      f'Eval Success: {eval_stats["success_rate"]:.2%}')
+                print(
+                    f"Episode {episode + 1}/{num_episodes} | "
+                    f"Reward: {avg_reward:.2f} | "
+                    f"Length: {avg_length:.2f} | "
+                    f"Loss: {avg_loss:.4f} | "
+                    f"Success: {success_rate:.2%} | "
+                    f"Epsilon: {agent.epsilon:.3f} | "
+                    f'Buffer: {agent_stats["buffer_size"]} | '
+                    f'Eval Reward: {eval_stats["mean_reward"]:.2f} | '
+                    f'Eval Success: {eval_stats["success_rate"]:.2%}'
+                )
 
     return {
-        'episode_rewards': episode_rewards,
-        'episode_lengths': episode_lengths,
-        'episode_losses': episode_losses,
-        'epsilon_history': epsilon_history,
-        'success_rate': success_count / num_episodes,
-        'eval_rewards': eval_rewards,
-        'eval_success_rates': eval_success_rates,
-        'agent_stats': agent.get_statistics()
+        "episode_rewards": episode_rewards,
+        "episode_lengths": episode_lengths,
+        "episode_losses": episode_losses,
+        "epsilon_history": epsilon_history,
+        "success_rate": success_count / num_episodes,
+        "eval_rewards": eval_rewards,
+        "eval_success_rates": eval_success_rates,
+        "agent_stats": agent.get_statistics(),
     }
 
 
-def evaluate_dqn_agent(
-    env: SimpleGridWorld,
-    agent: DQNAgent,
-    num_episodes: int = 100
-) -> Dict[str, float]:
+def evaluate_dqn_agent(env: SimpleGridWorld, agent: DQNAgent, num_episodes: int = 100) -> Dict[str, float]:
     """
     Evaluate DQN agent performance without exploration.
 
@@ -576,21 +561,19 @@ def evaluate_dqn_agent(
 
         rewards.append(episode_reward)
         lengths.append(steps)
-        successes.append(info.get('goal_reached', False))
+        successes.append(info.get("goal_reached", False))
 
     return {
-        'mean_reward': np.mean(rewards),
-        'std_reward': np.std(rewards),
-        'mean_length': np.mean(lengths),
-        'std_length': np.std(lengths),
-        'success_rate': np.mean(successes)
+        "mean_reward": np.mean(rewards),
+        "std_reward": np.std(rewards),
+        "mean_length": np.mean(lengths),
+        "std_length": np.std(lengths),
+        "success_rate": np.mean(successes),
     }
 
 
 def plot_dqn_training_results(
-    dqn_stats: Dict[str, Any],
-    q_stats: Optional[Dict[str, Any]] = None,
-    save_path: str = None
+    dqn_stats: Dict[str, Any], q_stats: Optional[Dict[str, Any]] = None, save_path: str = None
 ):
     """
     Plot DQN training results with optional Q-Learning comparison.
@@ -604,117 +587,115 @@ def plot_dqn_training_results(
 
     # Episode rewards
     ax = axes[0, 0]
-    ax.plot(dqn_stats['episode_rewards'], alpha=0.3, label='DQN Episode Reward')
+    ax.plot(dqn_stats["episode_rewards"], alpha=0.3, label="DQN Episode Reward")
     window = 50
-    if len(dqn_stats['episode_rewards']) >= window:
-        moving_avg = np.convolve(
-            dqn_stats['episode_rewards'],
-            np.ones(window) / window,
-            mode='valid'
+    if len(dqn_stats["episode_rewards"]) >= window:
+        moving_avg = np.convolve(dqn_stats["episode_rewards"], np.ones(window) / window, mode="valid")
+        ax.plot(
+            range(window - 1, len(dqn_stats["episode_rewards"])),
+            moving_avg,
+            label=f"DQN {window}-Ep Moving Avg",
+            linewidth=2,
         )
-        ax.plot(range(window - 1, len(dqn_stats['episode_rewards'])),
-                moving_avg, label=f'DQN {window}-Ep Moving Avg', linewidth=2)
 
     if q_stats:
-        ax.plot(q_stats['episode_rewards'], alpha=0.3, label='Q-Learning Episode Reward', color='orange')
-        if len(q_stats['episode_rewards']) >= window:
-            moving_avg_q = np.convolve(
-                q_stats['episode_rewards'],
-                np.ones(window) / window,
-                mode='valid'
+        ax.plot(q_stats["episode_rewards"], alpha=0.3, label="Q-Learning Episode Reward", color="orange")
+        if len(q_stats["episode_rewards"]) >= window:
+            moving_avg_q = np.convolve(q_stats["episode_rewards"], np.ones(window) / window, mode="valid")
+            ax.plot(
+                range(window - 1, len(q_stats["episode_rewards"])),
+                moving_avg_q,
+                label=f"Q-Learning {window}-Ep Moving Avg",
+                linewidth=2,
+                color="darkorange",
             )
-            ax.plot(range(window - 1, len(q_stats['episode_rewards'])),
-                    moving_avg_q, label=f'Q-Learning {window}-Ep Moving Avg',
-                    linewidth=2, color='darkorange')
 
-    ax.set_xlabel('Episode')
-    ax.set_ylabel('Total Reward')
-    ax.set_title('Training Rewards')
+    ax.set_xlabel("Episode")
+    ax.set_ylabel("Total Reward")
+    ax.set_title("Training Rewards")
     ax.legend()
     ax.grid(True, alpha=0.3)
 
     # Episode losses (DQN only)
     ax = axes[0, 1]
-    valid_losses = [loss_val for loss_val in dqn_stats['episode_losses'] if loss_val > 0]
+    valid_losses = [loss_val for loss_val in dqn_stats["episode_losses"] if loss_val > 0]
     if valid_losses:
-        ax.plot(valid_losses, alpha=0.3, label='Episode Loss')
+        ax.plot(valid_losses, alpha=0.3, label="Episode Loss")
         if len(valid_losses) >= window:
-            moving_avg = np.convolve(valid_losses, np.ones(window) / window, mode='valid')
-            ax.plot(range(window - 1, len(valid_losses)),
-                    moving_avg, label=f'{window}-Episode Moving Avg', linewidth=2)
-    ax.set_xlabel('Episode')
-    ax.set_ylabel('Loss')
-    ax.set_title('Training Loss (DQN)')
+            moving_avg = np.convolve(valid_losses, np.ones(window) / window, mode="valid")
+            ax.plot(range(window - 1, len(valid_losses)), moving_avg, label=f"{window}-Episode Moving Avg", linewidth=2)
+    ax.set_xlabel("Episode")
+    ax.set_ylabel("Loss")
+    ax.set_title("Training Loss (DQN)")
     ax.legend()
     ax.grid(True, alpha=0.3)
 
     # Epsilon decay
     ax = axes[0, 2]
-    ax.plot(dqn_stats['epsilon_history'], linewidth=2, color='purple')
-    ax.set_xlabel('Episode')
-    ax.set_ylabel('Epsilon')
-    ax.set_title('Exploration Rate Decay')
+    ax.plot(dqn_stats["epsilon_history"], linewidth=2, color="purple")
+    ax.set_xlabel("Episode")
+    ax.set_ylabel("Epsilon")
+    ax.set_title("Exploration Rate Decay")
     ax.grid(True, alpha=0.3)
 
     # Episode lengths
     ax = axes[1, 0]
-    ax.plot(dqn_stats['episode_lengths'], alpha=0.3, label='DQN Episode Length')
-    if len(dqn_stats['episode_lengths']) >= window:
-        moving_avg = np.convolve(
-            dqn_stats['episode_lengths'],
-            np.ones(window) / window,
-            mode='valid'
+    ax.plot(dqn_stats["episode_lengths"], alpha=0.3, label="DQN Episode Length")
+    if len(dqn_stats["episode_lengths"]) >= window:
+        moving_avg = np.convolve(dqn_stats["episode_lengths"], np.ones(window) / window, mode="valid")
+        ax.plot(
+            range(window - 1, len(dqn_stats["episode_lengths"])),
+            moving_avg,
+            label=f"DQN {window}-Ep Moving Avg",
+            linewidth=2,
         )
-        ax.plot(range(window - 1, len(dqn_stats['episode_lengths'])),
-                moving_avg, label=f'DQN {window}-Ep Moving Avg', linewidth=2)
 
     if q_stats:
-        ax.plot(q_stats['episode_lengths'], alpha=0.3, label='Q-Learning Episode Length', color='orange')
-        if len(q_stats['episode_lengths']) >= window:
-            moving_avg_q = np.convolve(
-                q_stats['episode_lengths'],
-                np.ones(window) / window,
-                mode='valid'
+        ax.plot(q_stats["episode_lengths"], alpha=0.3, label="Q-Learning Episode Length", color="orange")
+        if len(q_stats["episode_lengths"]) >= window:
+            moving_avg_q = np.convolve(q_stats["episode_lengths"], np.ones(window) / window, mode="valid")
+            ax.plot(
+                range(window - 1, len(q_stats["episode_lengths"])),
+                moving_avg_q,
+                label=f"Q-Learning {window}-Ep Moving Avg",
+                linewidth=2,
+                color="darkorange",
             )
-            ax.plot(range(window - 1, len(q_stats['episode_lengths'])),
-                    moving_avg_q, label=f'Q-Learning {window}-Ep Moving Avg',
-                    linewidth=2, color='darkorange')
 
-    ax.set_xlabel('Episode')
-    ax.set_ylabel('Steps')
-    ax.set_title('Episode Lengths')
+    ax.set_xlabel("Episode")
+    ax.set_ylabel("Steps")
+    ax.set_title("Episode Lengths")
     ax.legend()
     ax.grid(True, alpha=0.3)
 
     # Evaluation rewards
     ax = axes[1, 1]
-    eval_episodes = np.arange(len(dqn_stats['eval_rewards'])) * 50 + 50
-    ax.plot(eval_episodes, dqn_stats['eval_rewards'], marker='o', linewidth=2, label='DQN')
+    eval_episodes = np.arange(len(dqn_stats["eval_rewards"])) * 50 + 50
+    ax.plot(eval_episodes, dqn_stats["eval_rewards"], marker="o", linewidth=2, label="DQN")
 
     if q_stats:
-        eval_episodes_q = np.arange(len(q_stats['eval_rewards'])) * 50 + 50
-        ax.plot(eval_episodes_q, q_stats['eval_rewards'], marker='s',
-                linewidth=2, label='Q-Learning', color='orange')
+        eval_episodes_q = np.arange(len(q_stats["eval_rewards"])) * 50 + 50
+        ax.plot(eval_episodes_q, q_stats["eval_rewards"], marker="s", linewidth=2, label="Q-Learning", color="orange")
 
-    ax.set_xlabel('Episode')
-    ax.set_ylabel('Mean Evaluation Reward')
-    ax.set_title('Evaluation Performance')
+    ax.set_xlabel("Episode")
+    ax.set_ylabel("Mean Evaluation Reward")
+    ax.set_title("Evaluation Performance")
     ax.legend()
     ax.grid(True, alpha=0.3)
 
     # Success rate
     ax = axes[1, 2]
-    ax.plot(eval_episodes, dqn_stats['eval_success_rates'], marker='o',
-            linewidth=2, color='green', label='DQN')
+    ax.plot(eval_episodes, dqn_stats["eval_success_rates"], marker="o", linewidth=2, color="green", label="DQN")
 
     if q_stats:
-        eval_episodes_q = np.arange(len(q_stats['eval_success_rates'])) * 50 + 50
-        ax.plot(eval_episodes_q, q_stats['eval_success_rates'], marker='s',
-                linewidth=2, color='orange', label='Q-Learning')
+        eval_episodes_q = np.arange(len(q_stats["eval_success_rates"])) * 50 + 50
+        ax.plot(
+            eval_episodes_q, q_stats["eval_success_rates"], marker="s", linewidth=2, color="orange", label="Q-Learning"
+        )
 
-    ax.set_xlabel('Episode')
-    ax.set_ylabel('Success Rate')
-    ax.set_title('Evaluation Success Rate')
+    ax.set_xlabel("Episode")
+    ax.set_ylabel("Success Rate")
+    ax.set_title("Evaluation Success Rate")
     ax.set_ylim([0, 1.05])
     ax.legend()
     ax.grid(True, alpha=0.3)
@@ -722,8 +703,8 @@ def plot_dqn_training_results(
     plt.tight_layout()
 
     if save_path:
-        plt.savefig(save_path, dpi=150, bbox_inches='tight')
-        print(f'Saved plot to {save_path}')
+        plt.savefig(save_path, dpi=150, bbox_inches="tight")
+        print(f"Saved plot to {save_path}")
 
     return fig
 
@@ -734,26 +715,22 @@ def main():
         print("ERROR: PyTorch is required for DQN. Install with: pip install torch>=2.0.0")
         return
 
-    print('=' * 80)
-    print('DQN Agent Training on SimpleGridWorld')
-    print('=' * 80)
+    print("=" * 80)
+    print("DQN Agent Training on SimpleGridWorld")
+    print("=" * 80)
 
     # Environment configuration
-    env_config = {
-        'grid_size': 5,
-        'episode_length': 100,
-        'reward_type': 'sparse'
-    }
+    env_config = {"grid_size": 5, "episode_length": 100, "reward_type": "sparse"}
 
     # Create environment
     env = SimpleGridWorld(env_config)
 
-    print('\nEnvironment Configuration:')
-    print(f'  Grid Size: {env.grid_size}x{env.grid_size}')
-    print(f'  Max Episode Length: {env.episode_length}')
-    print(f'  Reward Type: {env.reward_type}')
-    print(f'  Action Space: {env.action_space}')
-    print(f'  Observation Space: {env.observation_space}')
+    print("\nEnvironment Configuration:")
+    print(f"  Grid Size: {env.grid_size}x{env.grid_size}")
+    print(f"  Max Episode Length: {env.episode_length}")
+    print(f"  Reward Type: {env.reward_type}")
+    print(f"  Action Space: {env.action_space}")
+    print(f"  Observation Space: {env.observation_space}")
 
     # State dimension for DQN (flatten observation space)
     state_dim = env.observation_space.shape[0]
@@ -773,55 +750,49 @@ def main():
         batch_size=64,
         target_update_freq=100,
         tau=None,  # Use hard updates
-        grad_clip=1.0
+        grad_clip=1.0,
     )
 
-    print('\nDQN Agent Configuration:')
-    print(f'  State Dimension: {state_dim}')
-    print(f'  Action Dimension: {action_dim}')
-    print(f'  Hidden Layers: {dqn_agent.q_network.hidden_layers}')
-    print('  Learning Rate: 1e-3')
-    print(f'  Discount Factor: {dqn_agent.discount_factor}')
-    print(f'  Epsilon Decay Steps: {dqn_agent.epsilon_decay_steps}')
-    print(f'  Batch Size: {dqn_agent.batch_size}')
-    print(f'  Target Update Freq: {dqn_agent.target_update_freq}')
-    print(f'  Device: {dqn_agent.device}')
+    print("\nDQN Agent Configuration:")
+    print(f"  State Dimension: {state_dim}")
+    print(f"  Action Dimension: {action_dim}")
+    print(f"  Hidden Layers: {dqn_agent.q_network.hidden_layers}")
+    print("  Learning Rate: 1e-3")
+    print(f"  Discount Factor: {dqn_agent.discount_factor}")
+    print(f"  Epsilon Decay Steps: {dqn_agent.epsilon_decay_steps}")
+    print(f"  Batch Size: {dqn_agent.batch_size}")
+    print(f"  Target Update Freq: {dqn_agent.target_update_freq}")
+    print(f"  Device: {dqn_agent.device}")
 
     # Train DQN agent
-    print('\n' + '=' * 80)
-    print('Training DQN Agent')
-    print('=' * 80 + '\n')
+    print("\n" + "=" * 80)
+    print("Training DQN Agent")
+    print("=" * 80 + "\n")
 
     num_episodes = 500
     dqn_stats = train_dqn(
-        env=env,
-        agent=dqn_agent,
-        num_episodes=num_episodes,
-        max_steps=100,
-        train_freq=1,
-        eval_interval=50,
-        verbose=True
+        env=env, agent=dqn_agent, num_episodes=num_episodes, max_steps=100, train_freq=1, eval_interval=50, verbose=True
     )
 
     # Save DQN checkpoint
-    checkpoint_path = '/tmp/dqn_checkpoint.pth'
+    checkpoint_path = "/tmp/dqn_checkpoint.pth"
     dqn_agent.save(checkpoint_path)
-    print(f'\nSaved DQN checkpoint to {checkpoint_path}')
+    print(f"\nSaved DQN checkpoint to {checkpoint_path}")
 
     # Final DQN evaluation
-    print('\n' + '=' * 80)
-    print('Final DQN Evaluation')
-    print('=' * 80)
+    print("\n" + "=" * 80)
+    print("Final DQN Evaluation")
+    print("=" * 80)
 
     dqn_final_eval = evaluate_dqn_agent(env, dqn_agent, num_episodes=100)
-    print('\nDQN Performance (100 episodes):')
+    print("\nDQN Performance (100 episodes):")
     print(f'  Mean Reward: {dqn_final_eval["mean_reward"]:.2f} ± {dqn_final_eval["std_reward"]:.2f}')
     print(f'  Mean Length: {dqn_final_eval["mean_length"]:.2f} ± {dqn_final_eval["std_length"]:.2f}')
     print(f'  Success Rate: {dqn_final_eval["success_rate"]:.2%}')
 
     # DQN Agent statistics
     dqn_agent_stats = dqn_agent.get_statistics()
-    print('\nDQN Agent Statistics:')
+    print("\nDQN Agent Statistics:")
     print(f'  Total Steps: {dqn_agent_stats["total_steps"]:,}')
     print(f'  Episodes Trained: {dqn_agent_stats["episodes_trained"]:,}')
     print(f'  Final Epsilon: {dqn_agent_stats["epsilon"]:.4f}')
@@ -829,9 +800,9 @@ def main():
     print(f'  Mean Loss: {dqn_agent_stats["mean_loss"]:.4f}')
 
     # Train Q-Learning baseline
-    print('\n' + '=' * 80)
-    print('Training Q-Learning Baseline for Comparison')
-    print('=' * 80 + '\n')
+    print("\n" + "=" * 80)
+    print("Training Q-Learning Baseline for Comparison")
+    print("=" * 80 + "\n")
 
     q_agent = QLearningAgent(
         action_space_size=action_dim,
@@ -839,31 +810,26 @@ def main():
         discount_factor=0.95,
         epsilon=1.0,
         epsilon_decay=0.995,
-        epsilon_min=0.01
+        epsilon_min=0.01,
     )
 
     # Import training function
     from examples.q_learning_agent import train_q_learning
 
     q_stats = train_q_learning(
-        env=env,
-        agent=q_agent,
-        num_episodes=num_episodes,
-        max_steps=100,
-        eval_interval=50,
-        verbose=True
+        env=env, agent=q_agent, num_episodes=num_episodes, max_steps=100, eval_interval=50, verbose=True
     )
 
     q_final_eval = evaluate_q_agent(env, q_agent, num_episodes=100)
-    print('\nQ-Learning Performance (100 episodes):')
+    print("\nQ-Learning Performance (100 episodes):")
     print(f'  Mean Reward: {q_final_eval["mean_reward"]:.2f} ± {q_final_eval["std_reward"]:.2f}')
     print(f'  Mean Length: {q_final_eval["mean_length"]:.2f} ± {q_final_eval["std_length"]:.2f}')
     print(f'  Success Rate: {q_final_eval["success_rate"]:.2%}')
 
     # Random baseline
-    print('\n' + '=' * 80)
-    print('Random Baseline Comparison')
-    print('=' * 80)
+    print("\n" + "=" * 80)
+    print("Random Baseline Comparison")
+    print("=" * 80)
 
     class RandomAgent:
         def select_action(self, state, training=True):
@@ -872,64 +838,63 @@ def main():
     random_agent = RandomAgent()
     random_eval = evaluate_q_agent(env, random_agent, num_episodes=100)
 
-    print('\nRandom Agent Performance (100 episodes):')
+    print("\nRandom Agent Performance (100 episodes):")
     print(f'  Mean Reward: {random_eval["mean_reward"]:.2f} ± {random_eval["std_reward"]:.2f}')
     print(f'  Mean Length: {random_eval["mean_length"]:.2f} ± {random_eval["std_length"]:.2f}')
     print(f'  Success Rate: {random_eval["success_rate"]:.2%}')
 
     # Comparison
-    print('\n' + '=' * 80)
-    print('Performance Comparison')
-    print('=' * 80)
+    print("\n" + "=" * 80)
+    print("Performance Comparison")
+    print("=" * 80)
 
-    print('\n                       DQN      Q-Learning    Random')
-    print('-' * 60)
-    print(f'Mean Reward:      {dqn_final_eval["mean_reward"]:8.2f}  {q_final_eval["mean_reward"]:8.2f}  '
-          f'{random_eval["mean_reward"]:8.2f}')
-    print(f'Success Rate:     {dqn_final_eval["success_rate"]:7.1%}   {q_final_eval["success_rate"]:7.1%}   '
-          f'{random_eval["success_rate"]:7.1%}')
-    print(f'Mean Length:      {dqn_final_eval["mean_length"]:8.2f}  {q_final_eval["mean_length"]:8.2f}  '
-          f'{random_eval["mean_length"]:8.2f}')
+    print("\n                       DQN      Q-Learning    Random")
+    print("-" * 60)
+    print(
+        f'Mean Reward:      {dqn_final_eval["mean_reward"]:8.2f}  {q_final_eval["mean_reward"]:8.2f}  '
+        f'{random_eval["mean_reward"]:8.2f}'
+    )
+    print(
+        f'Success Rate:     {dqn_final_eval["success_rate"]:7.1%}   {q_final_eval["success_rate"]:7.1%}   '
+        f'{random_eval["success_rate"]:7.1%}'
+    )
+    print(
+        f'Mean Length:      {dqn_final_eval["mean_length"]:8.2f}  {q_final_eval["mean_length"]:8.2f}  '
+        f'{random_eval["mean_length"]:8.2f}'
+    )
 
     # Plot results
-    print('\n' + '=' * 80)
-    print('Generating Training Plots')
-    print('=' * 80)
+    print("\n" + "=" * 80)
+    print("Generating Training Plots")
+    print("=" * 80)
 
     try:
         import matplotlib
-        matplotlib.use('Agg')
-        plot_dqn_training_results(
-            dqn_stats,
-            q_stats=q_stats,
-            save_path='/tmp/dqn_training_results.png'
-        )
-        print('\nPlots saved to /tmp/dqn_training_results.png')
+
+        matplotlib.use("Agg")
+        plot_dqn_training_results(dqn_stats, q_stats=q_stats, save_path="/tmp/dqn_training_results.png")
+        print("\nPlots saved to /tmp/dqn_training_results.png")
     except Exception as e:
-        print(f'\nCould not generate plots: {e}')
+        print(f"\nCould not generate plots: {e}")
 
     # Test checkpoint loading
-    print('\n' + '=' * 80)
-    print('Testing Checkpoint Load')
-    print('=' * 80)
+    print("\n" + "=" * 80)
+    print("Testing Checkpoint Load")
+    print("=" * 80)
 
-    test_agent = DQNAgent(
-        state_dim=state_dim,
-        action_dim=action_dim,
-        hidden_layers=[64, 64]
-    )
+    test_agent = DQNAgent(state_dim=state_dim, action_dim=action_dim, hidden_layers=[64, 64])
     test_agent.load(checkpoint_path)
 
     test_eval = evaluate_dqn_agent(env, test_agent, num_episodes=20)
-    print('\nLoaded Agent Performance (20 episodes):')
+    print("\nLoaded Agent Performance (20 episodes):")
     print(f'  Mean Reward: {test_eval["mean_reward"]:.2f} ± {test_eval["std_reward"]:.2f}')
     print(f'  Success Rate: {test_eval["success_rate"]:.2%}')
-    print('Checkpoint load successful!')
+    print("Checkpoint load successful!")
 
     # Close environment
     env.close()
-    print('\nTraining complete!')
+    print("\nTraining complete!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

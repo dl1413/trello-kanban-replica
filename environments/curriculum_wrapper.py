@@ -14,7 +14,6 @@ import numpy as np
 
 from environments.base_env import BaseEnvironment
 
-
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -53,7 +52,7 @@ class CurriculumWrapper(gym.Wrapper):
         failure_threshold: float = 0.3,
         difficulty_step: float = 0.1,
         min_episodes_before_change: int = 10,
-        enable_decrease: bool = True
+        enable_decrease: bool = True,
     ):
         """
         Initialize the curriculum wrapper.
@@ -131,9 +130,7 @@ class CurriculumWrapper(gym.Wrapper):
         logger.info(f"Difficulty manually set: {old_difficulty:.2f} -> {self._difficulty:.2f}")
 
     def reset(
-        self,
-        seed: Optional[int] = None,
-        options: Optional[Dict[str, Any]] = None
+        self, seed: Optional[int] = None, options: Optional[Dict[str, Any]] = None
     ) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
         Reset the environment with current difficulty settings.
@@ -157,9 +154,9 @@ class CurriculumWrapper(gym.Wrapper):
         obs, info = self.env.reset(seed=seed, options=options)
 
         # Add curriculum info
-        info['curriculum_difficulty'] = self._difficulty
-        info['curriculum_success_rate'] = self._get_success_rate()
-        info['curriculum_episode_count'] = self._episode_count
+        info["curriculum_difficulty"] = self._difficulty
+        info["curriculum_success_rate"] = self._get_success_rate()
+        info["curriculum_episode_count"] = self._episode_count
 
         # Reset episode success flag
         self._current_episode_success = False
@@ -185,7 +182,7 @@ class CurriculumWrapper(gym.Wrapper):
         # Track success for curriculum (goal_reached or positive terminal reward)
         if terminated and not truncated:
             # Check if episode was successful
-            self._current_episode_success = info.get('goal_reached', False) or reward > 0
+            self._current_episode_success = info.get("goal_reached", False) or reward > 0
 
         # If episode ended, record success/failure
         if terminated or truncated:
@@ -193,8 +190,8 @@ class CurriculumWrapper(gym.Wrapper):
             self._episode_count += 1
 
         # Add curriculum info
-        info['curriculum_difficulty'] = self._difficulty
-        info['curriculum_success_rate'] = self._get_success_rate()
+        info["curriculum_difficulty"] = self._difficulty
+        info["curriculum_success_rate"] = self._get_success_rate()
 
         return obs, reward, terminated, truncated, info
 
@@ -208,13 +205,13 @@ class CurriculumWrapper(gym.Wrapper):
         # Get environment class name
         env_class_name = self.env.__class__.__name__
 
-        if 'GridWorld' in env_class_name or 'Grid' in env_class_name:
+        if "GridWorld" in env_class_name or "Grid" in env_class_name:
             self._apply_gridworld_difficulty()
         else:
             # For generic environments, pass difficulty in config
-            if not hasattr(self.env, 'config'):
+            if not hasattr(self.env, "config"):
                 self.env.config = {}
-            self.env.config['difficulty'] = self._difficulty
+            self.env.config["difficulty"] = self._difficulty
 
     def _apply_gridworld_difficulty(self) -> None:
         """
@@ -235,22 +232,23 @@ class CurriculumWrapper(gym.Wrapper):
             grid_size += 1
 
         # Update environment config
-        if not hasattr(self.env, 'config'):
+        if not hasattr(self.env, "config"):
             self.env.config = {}
 
-        self.env.config['grid_size'] = grid_size
-        self.env.config['difficulty'] = self._difficulty
+        self.env.config["grid_size"] = grid_size
+        self.env.config["difficulty"] = self._difficulty
 
         # Update obstacle configuration
         obstacle_density = self._difficulty * 0.2  # 0% to 20% obstacles
-        self.env.config['obstacle_density'] = obstacle_density
+        self.env.config["obstacle_density"] = obstacle_density
 
         # Update grid size in the environment if it has the attribute
-        if hasattr(self.env, 'grid_size'):
+        if hasattr(self.env, "grid_size"):
             self.env.grid_size = grid_size
 
-        logger.debug(f"Applied GridWorld difficulty: grid_size={grid_size}, "
-                     f"obstacle_density={obstacle_density:.2f}")
+        logger.debug(
+            f"Applied GridWorld difficulty: grid_size={grid_size}, " f"obstacle_density={obstacle_density:.2f}"
+        )
 
     def _update_curriculum(self) -> None:
         """
@@ -272,14 +270,18 @@ class CurriculumWrapper(gym.Wrapper):
         # Check if difficulty should increase
         if success_rate >= self._success_threshold and self._difficulty < 1.0:
             self._difficulty = min(1.0, self._difficulty + self._difficulty_step)
-            logger.info(f"Difficulty increased: {old_difficulty:.2f} -> {self._difficulty:.2f} "
-                        f"(success_rate={success_rate:.2f})")
+            logger.info(
+                f"Difficulty increased: {old_difficulty:.2f} -> {self._difficulty:.2f} "
+                f"(success_rate={success_rate:.2f})"
+            )
 
         # Check if difficulty should decrease
         elif self._enable_decrease and success_rate <= self._failure_threshold and self._difficulty > 0.0:
             self._difficulty = max(0.0, self._difficulty - self._difficulty_step)
-            logger.info(f"Difficulty decreased: {old_difficulty:.2f} -> {self._difficulty:.2f} "
-                        f"(success_rate={success_rate:.2f})")
+            logger.info(
+                f"Difficulty decreased: {old_difficulty:.2f} -> {self._difficulty:.2f} "
+                f"(success_rate={success_rate:.2f})"
+            )
 
     def _get_success_rate(self) -> float:
         """

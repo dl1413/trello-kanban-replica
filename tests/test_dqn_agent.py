@@ -13,13 +13,8 @@ from pathlib import Path
 try:
     import torch
     import torch.nn as nn
-    from examples.dqn_agent import (
-        QNetwork,
-        ReplayBuffer,
-        DQNAgent,
-        discretize_observation,
-        TORCH_AVAILABLE
-    )
+    from examples.dqn_agent import QNetwork, ReplayBuffer, DQNAgent, discretize_observation, TORCH_AVAILABLE
+
     SKIP_TORCH_TESTS = not TORCH_AVAILABLE
 except ImportError:
     SKIP_TORCH_TESTS = True
@@ -27,11 +22,9 @@ except ImportError:
 
 from examples.simple_gridworld import SimpleGridWorld
 
-
 # Skip all tests if PyTorch is not available
 pytestmark = pytest.mark.skipif(
-    SKIP_TORCH_TESTS,
-    reason="PyTorch not available. Install with: pip install torch>=2.0.0"
+    SKIP_TORCH_TESTS, reason="PyTorch not available. Install with: pip install torch>=2.0.0"
 )
 
 
@@ -225,11 +218,7 @@ class TestDQNAgent:
 
     def test_agent_initialization(self):
         """Test DQN agent initialization."""
-        agent = DQNAgent(
-            state_dim=4,
-            action_dim=2,
-            hidden_layers=[64, 64]
-        )
+        agent = DQNAgent(state_dim=4, action_dim=2, hidden_layers=[64, 64])
 
         assert agent.state_dim == 4
         assert agent.action_dim == 2
@@ -240,11 +229,7 @@ class TestDQNAgent:
 
     def test_agent_select_action_training(self):
         """Test action selection during training (epsilon-greedy)."""
-        agent = DQNAgent(
-            state_dim=2,
-            action_dim=4,
-            epsilon_start=1.0
-        )
+        agent = DQNAgent(state_dim=2, action_dim=4, epsilon_start=1.0)
 
         state = np.array([0.5, 0.5])
 
@@ -254,11 +239,7 @@ class TestDQNAgent:
 
     def test_agent_select_action_evaluation(self):
         """Test action selection during evaluation (greedy)."""
-        agent = DQNAgent(
-            state_dim=2,
-            action_dim=4,
-            epsilon_start=1.0
-        )
+        agent = DQNAgent(state_dim=2, action_dim=4, epsilon_start=1.0)
 
         state = np.array([0.5, 0.5])
 
@@ -277,7 +258,7 @@ class TestDQNAgent:
             action_dim=4,
             epsilon_start=epsilon_start,
             epsilon_end=epsilon_end,
-            epsilon_decay_steps=decay_steps
+            epsilon_decay_steps=decay_steps,
         )
 
         # Check initial epsilon
@@ -314,11 +295,7 @@ class TestDQNAgent:
 
     def test_agent_train_step_insufficient_samples(self):
         """Test that train_step returns None when buffer is too small."""
-        agent = DQNAgent(
-            state_dim=2,
-            action_dim=4,
-            batch_size=32
-        )
+        agent = DQNAgent(state_dim=2, action_dim=4, batch_size=32)
 
         # Add only 10 samples (less than batch size)
         for i in range(10):
@@ -332,12 +309,7 @@ class TestDQNAgent:
 
     def test_agent_train_step_reduces_loss(self):
         """Test that training step computes and reduces loss."""
-        agent = DQNAgent(
-            state_dim=2,
-            action_dim=4,
-            batch_size=32,
-            learning_rate=1e-2
-        )
+        agent = DQNAgent(state_dim=2, action_dim=4, batch_size=32, learning_rate=1e-2)
 
         # Add enough samples
         for i in range(100):
@@ -367,11 +339,7 @@ class TestDQNAgent:
 
     def test_target_network_hard_update(self):
         """Test hard update of target network."""
-        agent = DQNAgent(
-            state_dim=2,
-            action_dim=4,
-            target_update_freq=10
-        )
+        agent = DQNAgent(state_dim=2, action_dim=4, target_update_freq=10)
 
         # Get initial target network parameters
         initial_params = [p.clone() for p in agent.target_network.parameters()]
@@ -385,10 +353,7 @@ class TestDQNAgent:
             agent.train_step()
 
         # Q-network should have changed
-        q_params_changed = any(
-            not torch.equal(p1, p2)
-            for p1, p2 in zip(agent.q_network.parameters(), initial_params)
-        )
+        q_params_changed = any(not torch.equal(p1, p2) for p1, p2 in zip(agent.q_network.parameters(), initial_params))
         assert q_params_changed
 
         # Force hard update
@@ -401,11 +366,7 @@ class TestDQNAgent:
     def test_target_network_soft_update(self):
         """Test soft (Polyak) update of target network."""
         tau = 0.1
-        agent = DQNAgent(
-            state_dim=2,
-            action_dim=4,
-            tau=tau
-        )
+        agent = DQNAgent(state_dim=2, action_dim=4, tau=tau)
 
         # Get initial parameters
         initial_q_params = [p.clone() for p in agent.q_network.parameters()]
@@ -421,10 +382,7 @@ class TestDQNAgent:
 
         # Check that soft update occurred (target should be between old and new)
         for old_q, old_target, new_q, new_target in zip(
-            initial_q_params,
-            initial_target_params,
-            agent.q_network.parameters(),
-            agent.target_network.parameters()
+            initial_q_params, initial_target_params, agent.q_network.parameters(), agent.target_network.parameters()
         ):
             # Q-network should have changed significantly
             assert not torch.allclose(old_q, new_q, atol=1e-3)
@@ -437,11 +395,7 @@ class TestDQNAgent:
 
     def test_agent_save_and_load(self):
         """Test saving and loading agent checkpoint."""
-        agent = DQNAgent(
-            state_dim=2,
-            action_dim=4,
-            hidden_layers=[32, 32]
-        )
+        agent = DQNAgent(state_dim=2, action_dim=4, hidden_layers=[32, 32])
 
         # Train for a bit
         for i in range(50):
@@ -453,18 +407,14 @@ class TestDQNAgent:
         agent.end_episode()
 
         # Save checkpoint
-        with tempfile.NamedTemporaryFile(suffix='.pth', delete=False) as f:
+        with tempfile.NamedTemporaryFile(suffix=".pth", delete=False) as f:
             checkpoint_path = f.name
 
         try:
             agent.save(checkpoint_path)
 
             # Create new agent and load
-            new_agent = DQNAgent(
-                state_dim=2,
-                action_dim=4,
-                hidden_layers=[32, 32]
-            )
+            new_agent = DQNAgent(state_dim=2, action_dim=4, hidden_layers=[32, 32])
             new_agent.load(checkpoint_path)
 
             # Check that statistics match
@@ -491,15 +441,15 @@ class TestDQNAgent:
 
         stats = agent.get_statistics()
 
-        assert 'total_steps' in stats
-        assert 'episodes_trained' in stats
-        assert 'epsilon' in stats
-        assert 'update_count' in stats
-        assert 'buffer_size' in stats
-        assert 'mean_loss' in stats
+        assert "total_steps" in stats
+        assert "episodes_trained" in stats
+        assert "epsilon" in stats
+        assert "update_count" in stats
+        assert "buffer_size" in stats
+        assert "mean_loss" in stats
 
-        assert stats['total_steps'] == 0
-        assert stats['buffer_size'] == 0
+        assert stats["total_steps"] == 0
+        assert stats["buffer_size"] == 0
 
     def test_agent_end_episode(self):
         """Test end_episode method increments counter."""
@@ -516,13 +466,13 @@ class TestDQNAgent:
     def test_agent_different_devices(self):
         """Test agent can be created on different devices."""
         # CPU
-        agent_cpu = DQNAgent(state_dim=2, action_dim=4, device='cpu')
-        assert agent_cpu.device.type == 'cpu'
+        agent_cpu = DQNAgent(state_dim=2, action_dim=4, device="cpu")
+        assert agent_cpu.device.type == "cpu"
 
         # CUDA (if available)
         if torch.cuda.is_available():
-            agent_cuda = DQNAgent(state_dim=2, action_dim=4, device='cuda')
-            assert agent_cuda.device.type == 'cuda'
+            agent_cuda = DQNAgent(state_dim=2, action_dim=4, device="cuda")
+            assert agent_cuda.device.type == "cuda"
 
 
 class TestDiscretizeObservation:
@@ -558,15 +508,10 @@ class TestDQNIntegration:
 
     def test_dqn_with_gridworld(self):
         """Test DQN agent can interact with SimpleGridWorld."""
-        env_config = {'grid_size': 3, 'episode_length': 20}
+        env_config = {"grid_size": 3, "episode_length": 20}
         env = SimpleGridWorld(env_config)
 
-        agent = DQNAgent(
-            state_dim=2,
-            action_dim=4,
-            hidden_layers=[16, 16],
-            batch_size=8
-        )
+        agent = DQNAgent(state_dim=2, action_dim=4, hidden_layers=[16, 16], batch_size=8)
 
         obs, info = env.reset()
 
@@ -588,7 +533,7 @@ class TestDQNIntegration:
 
     def test_dqn_training_improves_performance(self):
         """Test that DQN training improves performance (smoke test)."""
-        env_config = {'grid_size': 3, 'episode_length': 30}
+        env_config = {"grid_size": 3, "episode_length": 30}
         env = SimpleGridWorld(env_config)
 
         agent = DQNAgent(
@@ -599,7 +544,7 @@ class TestDQNIntegration:
             batch_size=16,
             epsilon_start=1.0,
             epsilon_end=0.1,
-            epsilon_decay_steps=100
+            epsilon_decay_steps=100,
         )
 
         # Train for a few episodes
@@ -625,9 +570,9 @@ class TestDQNIntegration:
 
         # Agent should have learned something
         stats = agent.get_statistics()
-        assert stats['total_steps'] > 0
-        assert stats['episodes_trained'] == 20
-        assert stats['epsilon'] < agent.epsilon_start
+        assert stats["total_steps"] > 0
+        assert stats["episodes_trained"] == 20
+        assert stats["epsilon"] < agent.epsilon_start
         assert len(agent.replay_buffer) > 0
 
         env.close()
@@ -656,12 +601,7 @@ class TestEdgeCases:
 
     def test_agent_with_zero_epsilon(self):
         """Test agent behavior with no exploration."""
-        agent = DQNAgent(
-            state_dim=2,
-            action_dim=4,
-            epsilon_start=0.0,
-            epsilon_end=0.0
-        )
+        agent = DQNAgent(state_dim=2, action_dim=4, epsilon_start=0.0, epsilon_end=0.0)
 
         state = np.array([1.0, 2.0])
 
@@ -671,11 +611,7 @@ class TestEdgeCases:
 
     def test_agent_gradient_clipping(self):
         """Test that gradient clipping is applied."""
-        agent = DQNAgent(
-            state_dim=2,
-            action_dim=4,
-            grad_clip=0.5
-        )
+        agent = DQNAgent(state_dim=2, action_dim=4, grad_clip=0.5)
 
         # Add samples with extreme rewards to create large gradients
         for i in range(100):

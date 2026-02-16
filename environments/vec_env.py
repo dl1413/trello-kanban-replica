@@ -158,11 +158,11 @@ class SyncVectorEnv(VectorizedEnv):
 
             # Auto-reset if episode is done
             if terminated or truncated:
-                info['final_observation'] = obs
-                info['final_info'] = info.copy()
+                info["final_observation"] = obs
+                info["final_info"] = info.copy()
                 obs, reset_info = env.reset()
-                info['_final_observation'] = True
-                info['_final_info'] = True
+                info["_final_observation"] = True
+                info["_final_info"] = True
 
             observations.append(obs)
             infos.append(info)
@@ -172,7 +172,7 @@ class SyncVectorEnv(VectorizedEnv):
             np.array(rewards, dtype=np.float32),
             np.array(terminateds, dtype=bool),
             np.array(truncateds, dtype=bool),
-            infos
+            infos,
         )
 
     def close(self):
@@ -202,24 +202,24 @@ def _worker(remote: mp.connection.Connection, parent_remote: mp.connection.Conne
         while True:
             cmd, data = remote.recv()
 
-            if cmd == 'reset':
+            if cmd == "reset":
                 obs, info = env.reset(seed=data)
                 remote.send((obs, info))
 
-            elif cmd == 'step':
+            elif cmd == "step":
                 obs, reward, terminated, truncated, info = env.step(data)
 
                 # Auto-reset if episode is done
                 if terminated or truncated:
-                    info['final_observation'] = obs
-                    info['final_info'] = info.copy()
+                    info["final_observation"] = obs
+                    info["final_info"] = info.copy()
                     obs, reset_info = env.reset()
-                    info['_final_observation'] = True
-                    info['_final_info'] = True
+                    info["_final_observation"] = True
+                    info["_final_info"] = True
 
                 remote.send((obs, reward, terminated, truncated, info))
 
-            elif cmd == 'close':
+            elif cmd == "close":
                 env.close()
                 remote.close()
                 break
@@ -258,11 +258,7 @@ class AsyncVectorEnv(VectorizedEnv):
         self.remotes, self.work_remotes = zip(*[mp.Pipe() for _ in range(num_envs)])
 
         for work_remote, remote in zip(self.work_remotes, self.remotes):
-            process = mp.Process(
-                target=_worker,
-                args=(work_remote, remote, env_fn),
-                daemon=True
-            )
+            process = mp.Process(target=_worker, args=(work_remote, remote, env_fn), daemon=True)
             process.start()
             self.processes.append(process)
             work_remote.close()
@@ -282,7 +278,7 @@ class AsyncVectorEnv(VectorizedEnv):
 
         for i, remote in enumerate(self.remotes):
             env_seed = None if seed is None else seed + i
-            remote.send(('reset', env_seed))
+            remote.send(("reset", env_seed))
 
         observations = []
         for remote in self.remotes:
@@ -316,7 +312,7 @@ class AsyncVectorEnv(VectorizedEnv):
 
         # Send actions to all workers
         for remote, action in zip(self.remotes, actions):
-            remote.send(('step', action))
+            remote.send(("step", action))
 
         # Collect results
         observations = []
@@ -338,7 +334,7 @@ class AsyncVectorEnv(VectorizedEnv):
             np.array(rewards, dtype=np.float32),
             np.array(terminateds, dtype=bool),
             np.array(truncateds, dtype=bool),
-            infos
+            infos,
         )
 
     def close(self):
@@ -348,7 +344,7 @@ class AsyncVectorEnv(VectorizedEnv):
             for remote in self.remotes:
                 if not remote.closed:
                     try:
-                        remote.send(('close', None))
+                        remote.send(("close", None))
                     except Exception:
                         pass
 
@@ -370,5 +366,5 @@ class AsyncVectorEnv(VectorizedEnv):
 
     def __del__(self):
         """Ensure processes are cleaned up on deletion."""
-        if hasattr(self, 'closed') and not self.closed:
+        if hasattr(self, "closed") and not self.closed:
             self.close()

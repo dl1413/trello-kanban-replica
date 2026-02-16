@@ -24,6 +24,7 @@ class MockEnvironment(BaseEnvironment):
 
         # Define proper observation space
         from gymnasium import spaces
+
         self.observation_space = spaces.Box(low=0, high=10, shape=(2,), dtype=np.int32)
 
     def _get_initial_state(self):
@@ -51,7 +52,7 @@ class MockEnvironment(BaseEnvironment):
     def _get_info(self):
         """Get info."""
         info = super()._get_info()
-        info['goal_reached'] = self.step_count >= 10
+        info["goal_reached"] = self.step_count >= 10
         return info
 
 
@@ -102,7 +103,8 @@ class TestCurriculumWrapper:
         """Test that wrapping non-BaseEnvironment raises error."""
         # Create an object that is a gym.Env but not BaseEnvironment
         import gymnasium as gym
-        env = gym.make('CartPole-v1')
+
+        env = gym.make("CartPole-v1")
 
         with pytest.raises(TypeError, match="must be a BaseEnvironment subclass"):
             CurriculumWrapper(env)
@@ -150,10 +152,10 @@ class TestCurriculumWrapper:
         obs, info = wrapper.reset()
 
         assert env.observation_space.contains(obs)
-        assert 'curriculum_difficulty' in info
-        assert info['curriculum_difficulty'] == 0.5
-        assert 'curriculum_success_rate' in info
-        assert 'curriculum_episode_count' in info
+        assert "curriculum_difficulty" in info
+        assert info["curriculum_difficulty"] == 0.5
+        assert "curriculum_success_rate" in info
+        assert "curriculum_episode_count" in info
 
     def test_step(self):
         """Test step functionality."""
@@ -167,19 +169,19 @@ class TestCurriculumWrapper:
         assert isinstance(reward, (int, float))
         assert isinstance(terminated, bool)
         assert isinstance(truncated, bool)
-        assert 'curriculum_difficulty' in info
-        assert 'curriculum_success_rate' in info
+        assert "curriculum_difficulty" in info
+        assert "curriculum_success_rate" in info
 
     def test_difficulty_increases_on_high_performance(self):
         """Test that difficulty increases when success rate exceeds threshold."""
-        env = MockEnvironment({'episode_length': 20})
+        env = MockEnvironment({"episode_length": 20})
         wrapper = CurriculumWrapper(
             env,
             initial_difficulty=0.0,
             window_size=10,
             success_threshold=0.7,
             difficulty_step=0.1,
-            min_episodes_before_change=5
+            min_episodes_before_change=5,
         )
 
         initial_difficulty = wrapper.get_difficulty()
@@ -197,7 +199,7 @@ class TestCurriculumWrapper:
 
     def test_difficulty_decreases_on_low_performance(self):
         """Test that difficulty decreases when success rate falls below threshold."""
-        env = MockEnvironment({'episode_length': 5})
+        env = MockEnvironment({"episode_length": 5})
         wrapper = CurriculumWrapper(
             env,
             initial_difficulty=0.5,
@@ -206,7 +208,7 @@ class TestCurriculumWrapper:
             failure_threshold=0.3,
             difficulty_step=0.1,
             min_episodes_before_change=5,
-            enable_decrease=True
+            enable_decrease=True,
         )
 
         initial_difficulty = wrapper.get_difficulty()
@@ -226,7 +228,7 @@ class TestCurriculumWrapper:
 
     def test_difficulty_no_decrease_when_disabled(self):
         """Test that difficulty doesn't decrease when enable_decrease=False."""
-        env = MockEnvironment({'episode_length': 5})
+        env = MockEnvironment({"episode_length": 5})
         wrapper = CurriculumWrapper(
             env,
             initial_difficulty=0.5,
@@ -235,7 +237,7 @@ class TestCurriculumWrapper:
             failure_threshold=0.3,
             difficulty_step=0.1,
             min_episodes_before_change=5,
-            enable_decrease=False
+            enable_decrease=False,
         )
 
         initial_difficulty = wrapper.get_difficulty()
@@ -253,7 +255,7 @@ class TestCurriculumWrapper:
 
     def test_difficulty_unchanged_below_threshold(self):
         """Test that difficulty doesn't change when success rate is between thresholds."""
-        env = MockEnvironment({'episode_length': 20})
+        env = MockEnvironment({"episode_length": 20})
         wrapper = CurriculumWrapper(
             env,
             initial_difficulty=0.5,
@@ -261,7 +263,7 @@ class TestCurriculumWrapper:
             success_threshold=0.8,
             failure_threshold=0.2,
             difficulty_step=0.1,
-            min_episodes_before_change=5
+            min_episodes_before_change=5,
         )
 
         initial_difficulty = wrapper.get_difficulty()
@@ -288,14 +290,14 @@ class TestCurriculumWrapper:
 
     def test_difficulty_respects_bounds(self):
         """Test that difficulty stays within [0, 1] bounds."""
-        env = MockEnvironment({'episode_length': 20})
+        env = MockEnvironment({"episode_length": 20})
         wrapper = CurriculumWrapper(
             env,
             initial_difficulty=0.9,
             window_size=5,
             success_threshold=0.7,
             difficulty_step=0.2,
-            min_episodes_before_change=3
+            min_episodes_before_change=3,
         )
 
         # Run many successful episodes to try to push difficulty above 1.0
@@ -312,7 +314,7 @@ class TestCurriculumWrapper:
 
     def test_difficulty_respects_lower_bound(self):
         """Test that difficulty doesn't go below 0.0."""
-        env = MockEnvironment({'episode_length': 5})
+        env = MockEnvironment({"episode_length": 5})
         wrapper = CurriculumWrapper(
             env,
             initial_difficulty=0.15,
@@ -321,7 +323,7 @@ class TestCurriculumWrapper:
             failure_threshold=0.5,
             difficulty_step=0.1,
             min_episodes_before_change=3,
-            enable_decrease=True
+            enable_decrease=True,
         )
 
         # Run many failing episodes to try to push difficulty below 0.0
@@ -339,14 +341,14 @@ class TestCurriculumWrapper:
 
     def test_no_change_before_min_episodes(self):
         """Test that difficulty doesn't change before minimum episodes."""
-        env = MockEnvironment({'episode_length': 20})
+        env = MockEnvironment({"episode_length": 20})
         wrapper = CurriculumWrapper(
             env,
             initial_difficulty=0.5,
             window_size=10,
             success_threshold=0.7,
             difficulty_step=0.1,
-            min_episodes_before_change=20
+            min_episodes_before_change=20,
         )
 
         initial_difficulty = wrapper.get_difficulty()
@@ -365,21 +367,21 @@ class TestCurriculumWrapper:
     def test_gridworld_config_modification(self):
         """Test that GridWorld config is modified based on difficulty."""
         # Use SimpleGridWorld
-        env = SimpleGridWorld({'grid_size': 5})
+        env = SimpleGridWorld({"grid_size": 5})
         wrapper = CurriculumWrapper(env, initial_difficulty=0.0)
 
         # Reset to apply config
         wrapper.reset()
 
         # At difficulty 0.0, grid should be 3x3
-        assert env.config['grid_size'] == 3
+        assert env.config["grid_size"] == 3
 
         # Increase difficulty manually
         wrapper.set_difficulty(1.0)
         wrapper.reset()
 
         # At difficulty 1.0, grid should be 15x15
-        assert env.config['grid_size'] == 15
+        assert env.config["grid_size"] == 15
 
     def test_gridworld_difficulty_interpolation(self):
         """Test that GridWorld difficulty interpolates correctly."""
@@ -389,13 +391,13 @@ class TestCurriculumWrapper:
         wrapper.reset()
 
         # At difficulty 0.5, grid should be ~7x7
-        grid_size = env.config['grid_size']
+        grid_size = env.config["grid_size"]
         assert 5 <= grid_size <= 9
-        assert env.config['difficulty'] == 0.5
+        assert env.config["difficulty"] == 0.5
 
     def test_success_rate_calculation(self):
         """Test success rate calculation."""
-        env = MockEnvironment({'episode_length': 20})
+        env = MockEnvironment({"episode_length": 20})
         wrapper = CurriculumWrapper(env, window_size=5)
 
         # No history initially
@@ -411,7 +413,7 @@ class TestCurriculumWrapper:
 
     def test_episode_count_increments(self):
         """Test that episode count increments correctly."""
-        env = MockEnvironment({'episode_length': 20})
+        env = MockEnvironment({"episode_length": 20})
         wrapper = CurriculumWrapper(env)
 
         assert wrapper._episode_count == 0
@@ -428,7 +430,7 @@ class TestCurriculumWrapper:
 
     def test_success_tracking_with_goal_reached(self):
         """Test that success is tracked correctly via goal_reached flag."""
-        env = MockEnvironment({'episode_length': 20})
+        env = MockEnvironment({"episode_length": 20})
         wrapper = CurriculumWrapper(env, window_size=5)
 
         # Run successful episode
@@ -444,7 +446,7 @@ class TestCurriculumWrapper:
 
     def test_success_tracking_with_truncation(self):
         """Test that truncation is tracked as failure."""
-        env = MockEnvironment({'episode_length': 5})
+        env = MockEnvironment({"episode_length": 5})
         wrapper = CurriculumWrapper(env, window_size=5)
 
         # Run episode that truncates
@@ -468,11 +470,11 @@ class TestCurriculumWrapper:
 
         obs, info = wrapper.reset()
 
-        assert 'curriculum_difficulty' in info
-        assert 'curriculum_success_rate' in info
-        assert 'curriculum_episode_count' in info
-        assert info['curriculum_difficulty'] == 0.6
-        assert info['curriculum_episode_count'] == 0
+        assert "curriculum_difficulty" in info
+        assert "curriculum_success_rate" in info
+        assert "curriculum_episode_count" in info
+        assert info["curriculum_difficulty"] == 0.6
+        assert info["curriculum_episode_count"] == 0
 
     def test_curriculum_info_in_step(self):
         """Test that curriculum info is included in step info."""
@@ -482,20 +484,20 @@ class TestCurriculumWrapper:
         wrapper.reset()
         obs, reward, terminated, truncated, info = wrapper.step(0)
 
-        assert 'curriculum_difficulty' in info
-        assert 'curriculum_success_rate' in info
-        assert info['curriculum_difficulty'] == 0.6
+        assert "curriculum_difficulty" in info
+        assert "curriculum_success_rate" in info
+        assert info["curriculum_difficulty"] == 0.6
 
     def test_multiple_difficulty_changes(self):
         """Test multiple difficulty adjustments over many episodes."""
-        env = MockEnvironment({'episode_length': 20})
+        env = MockEnvironment({"episode_length": 20})
         wrapper = CurriculumWrapper(
             env,
             initial_difficulty=0.0,
             window_size=5,
             success_threshold=0.8,
             difficulty_step=0.2,
-            min_episodes_before_change=3
+            min_episodes_before_change=3,
         )
 
         difficulties = [wrapper.get_difficulty()]
@@ -522,8 +524,8 @@ class TestCurriculumWrapper:
         wrapper.reset()
 
         # Generic environment should have difficulty in config
-        assert 'difficulty' in env.config
-        assert env.config['difficulty'] == 0.4
+        assert "difficulty" in env.config
+        assert env.config["difficulty"] == 0.4
 
     def test_wrapper_preserves_env_interface(self):
         """Test that wrapper preserves environment interface."""
@@ -531,23 +533,23 @@ class TestCurriculumWrapper:
         wrapper = CurriculumWrapper(env)
 
         # Should have standard gym attributes
-        assert hasattr(wrapper, 'action_space')
-        assert hasattr(wrapper, 'observation_space')
-        assert hasattr(wrapper, 'reset')
-        assert hasattr(wrapper, 'step')
-        assert hasattr(wrapper, 'render')
-        assert hasattr(wrapper, 'close')
+        assert hasattr(wrapper, "action_space")
+        assert hasattr(wrapper, "observation_space")
+        assert hasattr(wrapper, "reset")
+        assert hasattr(wrapper, "step")
+        assert hasattr(wrapper, "render")
+        assert hasattr(wrapper, "close")
 
     def test_difficulty_progression_realistic_scenario(self):
         """Test difficulty progression in a realistic scenario with gradual improvement."""
-        env = MockEnvironment({'episode_length': 20})
+        env = MockEnvironment({"episode_length": 20})
         wrapper = CurriculumWrapper(
             env,
             initial_difficulty=0.0,
             window_size=10,
             success_threshold=0.7,
             difficulty_step=0.1,
-            min_episodes_before_change=5
+            min_episodes_before_change=5,
         )
 
         # Simulate learning: start with 30% success, gradually improve to 90%
@@ -577,5 +579,5 @@ class TestCurriculumWrapper:
         assert difficulties[-1] > difficulties[0]
 
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
