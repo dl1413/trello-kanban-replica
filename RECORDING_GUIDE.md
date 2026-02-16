@@ -59,7 +59,7 @@
 ### Part 5: Testing (2 minutes)
 **What to show**: Terminal running tests
 - Run: `pytest tests/ -v`
-- Show 26/26 tests passing
+- Show 40/40 tests passing
 - Briefly mention test categories
 - Show env_checker tests
 
@@ -85,13 +85,13 @@
 - ✅ **5-Tuple API**: Better semantics (terminated vs truncated)
 - ✅ **Proper Seeding**: Reproducible experiments
 - ✅ **Q-Learning Agent**: Real learning demonstration
-- ✅ **26 Tests**: 100% pass rate
+- ✅ **40 Tests**: 100% pass rate
 - ✅ **0 Vulnerabilities**: Secure code
 
 ### Quality Metrics
 - 4,500+ lines of code
 - 2,100+ lines of documentation
-- 26/26 tests passing
+- 40/40 tests passing
 - 100% API compliance
 - Full gymnasium compatibility
 
@@ -200,7 +200,7 @@ If running over time, you can:
 
 ## Sample Closing
 
-> "To wrap up, we've successfully completed a comprehensive migration to Gymnasium with 26 passing tests, zero security vulnerabilities, and full API compliance. The framework is production-ready and represents current industry best practices.
+> "To wrap up, we've successfully completed a comprehensive migration to Gymnasium with 40 passing tests, zero security vulnerabilities, and full API compliance. The framework is production-ready and represents current industry best practices.
 >
 > All the code, documentation, and this video transcript are available in the repository. Thank you for watching, and please feel free to reach out with any questions!"
 
