@@ -18,10 +18,7 @@ def base_env():
 @pytest.fixture
 def configured_env():
     """Fixture providing a configured environment."""
-    config = {
-        'episode_length': 100,
-        'seed': 42
-    }
+    config = {"episode_length": 100, "seed": 42}
     env = BaseEnvironment(config)
     yield env
     env.close()

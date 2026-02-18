@@ -6,7 +6,6 @@ import os
 import argparse
 from pathlib import Path
 
-
 ENVIRONMENT_TEMPLATE = '''"""
 {env_name} Environment
 
@@ -174,46 +173,38 @@ if __name__ == '__main__':
 '''
 
 
-def create_environment(name: str, output_dir: str = 'environments'):
+def create_environment(name: str, output_dir: str = "environments"):
     """
     Create a new environment from template.
-    
+
     Args:
         name: Name of the environment (e.g., 'my_custom_env')
         output_dir: Directory to create the environment in
     """
     # Convert name to valid Python identifiers
-    module_name = name.lower().replace(' ', '_').replace('-', '_')
-    class_name = ''.join(word.capitalize() for word in module_name.split('_'))
-    
+    module_name = name.lower().replace(" ", "_").replace("-", "_")
+    class_name = "".join(word.capitalize() for word in module_name.split("_"))
+
     # Create environment file
-    env_path = Path(output_dir) / f'{module_name}.py'
-    env_content = ENVIRONMENT_TEMPLATE.format(
-        env_name=name,
-        class_name=class_name,
-        module_name=module_name
-    )
-    
-    with open(env_path, 'w') as f:
+    env_path = Path(output_dir) / f"{module_name}.py"
+    env_content = ENVIRONMENT_TEMPLATE.format(env_name=name, class_name=class_name, module_name=module_name)
+
+    with open(env_path, "w") as f:
         f.write(env_content)
-    
-    print(f'✓ Created environment: {env_path}')
-    
+
+    print(f"✓ Created environment: {env_path}")
+
     # Create test file
-    test_path = Path('tests') / f'test_{module_name}.py'
-    test_content = TEST_TEMPLATE.format(
-        env_name=name,
-        class_name=class_name,
-        module_name=module_name
-    )
-    
-    with open(test_path, 'w') as f:
+    test_path = Path("tests") / f"test_{module_name}.py"
+    test_content = TEST_TEMPLATE.format(env_name=name, class_name=class_name, module_name=module_name)
+
+    with open(test_path, "w") as f:
         f.write(test_content)
-    
-    print(f'✓ Created test file: {test_path}')
-    
+
+    print(f"✓ Created test file: {test_path}")
+
     # Print next steps
-    print(f'''
+    print(f"""
 Environment '{name}' created successfully!
 
 Next steps:
@@ -225,40 +216,33 @@ Next steps:
 Documentation:
 - See docs/environment_development.md for detailed guide
 - See examples/simple_gridworld.py for a complete example
-''')
+""")
 
 
 def main():
     """Main function."""
-    parser = argparse.ArgumentParser(
-        description='Create a new RL environment from template'
-    )
+    parser = argparse.ArgumentParser(description="Create a new RL environment from template")
+    parser.add_argument("--name", type=str, required=True, help='Name of the environment (e.g., "my_custom_env")')
     parser.add_argument(
-        '--name',
+        "--output-dir",
         type=str,
-        required=True,
-        help='Name of the environment (e.g., "my_custom_env")'
+        default="environments",
+        help="Directory to create the environment in (default: environments)",
     )
-    parser.add_argument(
-        '--output-dir',
-        type=str,
-        default='environments',
-        help='Directory to create the environment in (default: environments)'
-    )
-    
+
     args = parser.parse_args()
-    
+
     # Check if directories exist
     if not os.path.exists(args.output_dir):
-        print(f'Error: Directory {args.output_dir} does not exist')
+        print(f"Error: Directory {args.output_dir} does not exist")
         return
-    
-    if not os.path.exists('tests'):
-        print('Error: tests directory does not exist')
+
+    if not os.path.exists("tests"):
+        print("Error: tests directory does not exist")
         return
-    
+
     create_environment(args.name, args.output_dir)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
