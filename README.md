@@ -1,6 +1,13 @@
 # Trello Kanban Replica - RL Environment Framework
 
+[![GitHub Repository](https://img.shields.io/badge/GitHub-trello--kanban--replica-blue?logo=github)](https://github.com/dl1413/trello-kanban-replica)
+[![CI](https://github.com/dl1413/trello-kanban-replica/actions/workflows/ci.yml/badge.svg)](https://github.com/dl1413/trello-kanban-replica/actions/workflows/ci.yml)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A comprehensive framework for developing and managing reinforcement learning environments at Verita AI, built on **Gymnasium** (the modern successor to OpenAI Gym).
+
+**Repository:** [https://github.com/dl1413/trello-kanban-replica](https://github.com/dl1413/trello-kanban-replica)
 
 ## Overview
 
