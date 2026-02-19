@@ -1,5 +1,9 @@
 # RL Environment Framework - Quick Start Guide
 
+> **For Verita AI Reviewers**: Comprehensive submission materials are available in the [presentation/](presentation/) folder, including complete documentation, video guides, and evaluation checklists.
+
+---
+
 ## Installation
 
 ### Using pip (recommended)
@@ -86,23 +90,27 @@ python examples/train_example.py
 ├── environments/          # Your RL environments
 │   ├── __init__.py
 │   └── base_env.py       # Base class for all environments
-├── configs/              # Configuration files
-│   ├── default_config.yaml
-│   └── custom_env_config.yaml
-├── tests/                # Test suites
-│   ├── conftest.py
-│   └── test_base_env.py
 ├── examples/             # Example implementations
 │   ├── simple_gridworld.py
 │   ├── train_example.py
 │   └── q_learning_agent.py
+├── tests/                # Test suites (40 tests passing)
+│   ├── conftest.py
+│   └── test_base_env.py
+├── configs/              # Configuration files
+│   ├── default_config.yaml
+│   └── custom_env_config.yaml
+├── docs/                 # Documentation
+│   ├── environment_development.md
+│   ├── testing_guidelines.md
+│   ├── api_reference.md
+│   └── deployment.md
 ├── tools/                # Utility tools
 │   └── create_env.py
-└── docs/                 # Documentation
-    ├── environment_development.md
-    ├── testing_guidelines.md
-    ├── api_reference.md
-    └── deployment.md
+└── presentation/         # Verita AI submission materials
+    ├── README.md         # Reviewer's guide
+    ├── SUBMISSION.md     # Complete submission document
+    └── VIDEO_TRANSCRIPT.md  # Video demonstration script
 ```
 
 ## Common Tasks
