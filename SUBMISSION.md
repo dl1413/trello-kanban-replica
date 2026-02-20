@@ -227,7 +227,7 @@ trello-kanban-replica/
 │   ├── train_example.py      # Random agent baseline (168 lines)
 │   └── q_learning_agent.py   # Q-Learning implementation (456 lines)
 │
-├── tests/                     # Test suite (26 tests)
+├── tests/                     # Test suite (40 tests)
 │   ├── conftest.py           # Test fixtures
 │   ├── test_base_env.py      # BaseEnvironment tests (273 lines)
 │   └── test_env_checker.py   # API compliance tests (103 lines)
