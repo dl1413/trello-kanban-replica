@@ -25,7 +25,8 @@ This repository provides a structured approach to building, testing, and deployi
 ├── tests/                # Test suites for environments
 ├── docs/                 # Comprehensive documentation
 ├── examples/             # Example implementations
-└── tools/                # Utility tools and scripts
+├── tools/                # Utility tools and scripts
+└── presentation/         # Presentation and submission documents
 ```
 
 ## 🚀 Quick Start
@@ -79,6 +80,14 @@ python examples/q_learning_agent.py
 | [API Reference](docs/api_reference.md) | Complete API documentation |
 | [Testing Guidelines](docs/testing_guidelines.md) | Testing best practices |
 | [Deployment Guide](docs/deployment.md) | Production deployment instructions |
+| [Quick Start Guide](presentation/QUICKSTART.md) | Get started in minutes |
+
+## 📋 Presentation Documents
+
+For submission and presentation materials, see the [presentation/](presentation/) folder:
+- [Submission Document](presentation/SUBMISSION.md) - Complete technical submission
+- [Deliverables Summary](presentation/DELIVERABLES.md) - Project overview
+- [Video Transcript](presentation/VIDEO_TRANSCRIPT.md) - Recording script
 
 ## 🤝 Contributing
 
