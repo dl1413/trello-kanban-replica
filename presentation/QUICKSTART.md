@@ -1,6 +1,6 @@
 # RL Environment Framework - Quick Start Guide
 
-## Installation
+## 📦 Installation
 
 ### Using pip (recommended)
 
@@ -12,13 +12,10 @@ This installs the package in editable mode, allowing you to modify the code and 
 
 ### Optional Dependencies
 
-```bash
-# For deep RL with PyTorch (optional)
-pip install -e ".[torch]"
-
-# For development tools
-pip install -e ".[dev]"
-```
+| Package | Command | Use Case |
+|---------|---------|----------|
+| **PyTorch** | `pip install -e ".[torch]"` | Deep RL with neural networks |
+| **Development Tools** | `pip install -e ".[dev]"` | Testing, linting, formatting |
 
 ### Manual Installation
 
@@ -26,7 +23,7 @@ pip install -e ".[dev]"
 pip install -r requirements.txt
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 ### 1. Create Your First Environment
 
@@ -79,7 +76,7 @@ python examples/q_learning_agent.py
 python examples/train_example.py
 ```
 
-## Project Structure
+## 📂 Project Structure
 
 ```
 .
@@ -89,68 +86,50 @@ python examples/train_example.py
 ├── configs/              # Configuration files
 │   ├── default_config.yaml
 │   └── custom_env_config.yaml
-├── tests/                # Test suites
+├── tests/                # Test suites (40 tests)
 │   ├── conftest.py
-│   └── test_base_env.py
+│   ├── test_base_env.py
+│   ├── test_env_checker.py
+│   └── test_optimizations.py
 ├── examples/             # Example implementations
 │   ├── simple_gridworld.py
 │   ├── train_example.py
 │   └── q_learning_agent.py
 ├── tools/                # Utility tools
 │   └── create_env.py
-└── docs/                 # Documentation
+└── docs/                 # Documentation (2,100+ lines)
     ├── environment_development.md
     ├── testing_guidelines.md
     ├── api_reference.md
     └── deployment.md
 ```
 
-## Common Tasks
+## 🛠️ Common Tasks
 
-### Create a New Environment
+| Task | Command |
+|------|---------|
+| **Create New Environment** | `python tools/create_env.py --name robot_navigation` |
+| **Run All Tests** | `pytest tests/` |
+| **Run Tests with Coverage** | `pytest --cov=environments tests/` |
+| **Format Code** | `black environments/ tests/ examples/` |
+| **Lint Code** | `flake8 environments/ tests/ examples/` |
 
-```bash
-python tools/create_env.py --name robot_navigation
-```
+## 📖 Next Steps
 
-### Run All Tests
+| Step | Guide | Purpose |
+|------|-------|---------|
+| 1 | [Environment Development Guide](docs/environment_development.md) | Learn to create custom environments |
+| 2 | [API Reference](docs/api_reference.md) | Explore the complete API |
+| 3 | [Testing Guidelines](docs/testing_guidelines.md) | Best practices for testing |
+| 4 | [Deployment Guide](docs/deployment.md) | Deploy to production |
 
-```bash
-pytest tests/
-```
+## 💡 Getting Help
 
-### Run Tests with Coverage
+- 📚 Read the documentation in the `docs/` directory
+- 💻 Check the examples in `examples/`
+- 🐛 Open an issue on GitHub
+- 📧 Contact the Verita AI RL team
 
-```bash
-pytest --cov=environments tests/
-```
-
-### Format Code
-
-```bash
-black environments/ tests/ examples/
-```
-
-### Lint Code
-
-```bash
-flake8 environments/ tests/ examples/
-```
-
-## Next Steps
-
-1. Read the [Environment Development Guide](docs/environment_development.md)
-2. Check out the [API Reference](docs/api_reference.md)
-3. Review the [Testing Guidelines](docs/testing_guidelines.md)
-4. See [Deployment Guide](docs/deployment.md) for production deployment
-
-## Getting Help
-
-- Read the documentation in the `docs/` directory
-- Check the examples in `examples/`
-- Open an issue on GitHub
-- Contact the Verita AI RL team
-
-## Contributing
+## 🤝 Contributing
 
 See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines on contributing to this project.
