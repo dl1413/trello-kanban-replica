@@ -115,6 +115,10 @@ trello-kanban-replica/
 │   ├── routes/                   # API routes
 │   ├── models/                   # Data models
 │   └── db/                       # Database layer
+├── Presentation/                 # Submission & presentation materials
+│   ├── PROJECT_SUBMISSION.md    # Main submission document
+│   ├── IMPLEMENTATION_DETAILS.md # Technical walkthrough
+│   └── WORKFLOW_EFFICIENCY_REPORT.md # Development methods
 ├── public/                       # Static assets
 └── docs/                         # Documentation
 ```
@@ -123,14 +127,17 @@ trello-kanban-replica/
 
 ## 📚 Documentation
 
-### Core Documents
-- **[PROJECT_SUBMISSION.md](PROJECT_SUBMISSION.md)** - Complete project overview and submission details
-- **[IMPLEMENTATION_DETAILS.md](IMPLEMENTATION_DETAILS.md)** - Technical walkthrough of architecture and implementation
-- **[WORKFLOW_EFFICIENCY_REPORT.md](WORKFLOW_EFFICIENCY_REPORT.md)** - Velocity methods and time-saving techniques
+### Presentation Materials
+All project submission and presentation materials are organized in the **[Presentation/](Presentation/)** folder:
+- **[PROJECT_SUBMISSION.md](Presentation/PROJECT_SUBMISSION.md)** - Complete project overview and submission details
+- **[IMPLEMENTATION_DETAILS.md](Presentation/IMPLEMENTATION_DETAILS.md)** - Technical walkthrough of architecture and implementation
+- **[WORKFLOW_EFFICIENCY_REPORT.md](Presentation/WORKFLOW_EFFICIENCY_REPORT.md)** - Velocity methods and time-saving techniques
+- **[DELIVERABLES.md](Presentation/DELIVERABLES.md)** - Deliverables summary
+- **[VIDEO_TRANSCRIPT.md](Presentation/VIDEO_TRANSCRIPT.md)** - Video presentation script
+- **[RECORDING_GUIDE.md](Presentation/RECORDING_GUIDE.md)** - Guide for recording presentations
 
-### Additional Resources
+### Quick Start
 - **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
-- **[DELIVERABLES.md](DELIVERABLES.md)** - Deliverables summary
 
 ---
 
@@ -198,7 +205,7 @@ Exact design tokens extracted from Trello:
 - Auto-formatting (ESLint + Prettier)
 - **Total Time Saved**: ~150 minutes
 
-See [WORKFLOW_EFFICIENCY_REPORT.md](WORKFLOW_EFFICIENCY_REPORT.md) for complete details.
+See [WORKFLOW_EFFICIENCY_REPORT.md](Presentation/WORKFLOW_EFFICIENCY_REPORT.md) for complete details.
 
 ---
 
@@ -227,7 +234,7 @@ If evolving to production, these improvements would be prioritized:
    - CI/CD pipeline
    - Cloud hosting (AWS/GCP)
 
-See [IMPLEMENTATION_DETAILS.md](IMPLEMENTATION_DETAILS.md) for architecture details.
+See [IMPLEMENTATION_DETAILS.md](Presentation/IMPLEMENTATION_DETAILS.md) for architecture details.
 
 ---
 
@@ -297,9 +304,9 @@ npm run type-check   # TypeScript check
 **Branch**: claude/replicate-ui-component
 
 **Documentation**:
-- Project Submission: [PROJECT_SUBMISSION.md](PROJECT_SUBMISSION.md)
-- Implementation Details: [IMPLEMENTATION_DETAILS.md](IMPLEMENTATION_DETAILS.md)
-- Workflow Report: [WORKFLOW_EFFICIENCY_REPORT.md](WORKFLOW_EFFICIENCY_REPORT.md)
+- Project Submission: [PROJECT_SUBMISSION.md](Presentation/PROJECT_SUBMISSION.md)
+- Implementation Details: [IMPLEMENTATION_DETAILS.md](Presentation/IMPLEMENTATION_DETAILS.md)
+- Workflow Report: [WORKFLOW_EFFICIENCY_REPORT.md](Presentation/WORKFLOW_EFFICIENCY_REPORT.md)
 
 ---
 
