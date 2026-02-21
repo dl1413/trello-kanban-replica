@@ -15,6 +15,7 @@ This folder contains all project submission and presentation materials, organize
 - **[PROJECT_SUBMISSION.md](Assessment1/PROJECT_SUBMISSION.md)** - Complete project submission with metrics and evaluation
 - **[IMPLEMENTATION_DETAILS.md](Assessment1/IMPLEMENTATION_DETAILS.md)** - Technical walkthrough of architecture and implementation
 - **[WORKFLOW_EFFICIENCY_REPORT.md](Assessment1/WORKFLOW_EFFICIENCY_REPORT.md)** - Velocity methods and time-saving techniques
+- **[DELIVERABLES.md](Assessment1/DELIVERABLES.md)** - Comprehensive deliverables summary with project metrics
 - **[VIDEO_TRANSCRIPT.md](Assessment1/VIDEO_TRANSCRIPT.md)** - Complete script for Loom video presentation
 - **[RECORDING_GUIDE.md](Assessment1/RECORDING_GUIDE.md)** - Quick reference guide for recording video
 
@@ -91,6 +92,7 @@ Presentation/
 │   ├── PROJECT_SUBMISSION.md
 │   ├── IMPLEMENTATION_DETAILS.md
 │   ├── WORKFLOW_EFFICIENCY_REPORT.md
+│   ├── DELIVERABLES.md
 │   ├── VIDEO_TRANSCRIPT.md
 │   └── RECORDING_GUIDE.md
 └── Assessment2/
@@ -111,6 +113,7 @@ Presentation/
 - **PROJECT_SUBMISSION.md**: Main submission document with overview, metrics, architecture, and evaluation
 - **IMPLEMENTATION_DETAILS.md**: Deep technical walkthrough of CSS challenges, drag-and-drop, state management
 - **WORKFLOW_EFFICIENCY_REPORT.md**: Detailed breakdown of time-saving methods and AI-assisted development
+- **DELIVERABLES.md**: Comprehensive deliverables summary with project metrics and rubric scores
 - **VIDEO_TRANSCRIPT.md**: Complete script for 13-15 minute Loom video presentation
 - **RECORDING_GUIDE.md**: Quick reference guide for recording video with setup and tips
 
