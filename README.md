@@ -4,6 +4,8 @@
 
 A pixel-perfect replication of Trello's core board interface, built in 4 hours as a demonstration of rapid prototyping skills, visual precision, and full-stack development capability.
 
+> 📋 **Verita AI Application**: This repository demonstrates comprehensive full-stack engineering skills for the RL Environments Engineer position. See [VERITA_AI_APPLICATION.md](VERITA_AI_APPLICATION.md) and [SKILLS_QUESTIONNAIRE.md](SKILLS_QUESTIONNAIRE.md) for complete details.
+
 ---
 
 ## 🎯 Project Overview
@@ -312,10 +314,16 @@ npm run type-check   # TypeScript check
 **Repository**: https://github.com/dl1413/trello-kanban-replica
 **Branch**: claude/replicate-ui-component
 
-**Documentation**:
-- Project Submission: [PROJECT_SUBMISSION.md](Presentation/Assessment2/PROJECT_SUBMISSION.md)
-- Implementation Details: [IMPLEMENTATION_DETAILS.md](Presentation/Assessment2/IMPLEMENTATION_DETAILS.md)
-- Workflow Report: [WORKFLOW_EFFICIENCY_REPORT.md](Presentation/Assessment2/WORKFLOW_EFFICIENCY_REPORT.md)
+**Verita AI Application Documents**:
+- Complete Application: [VERITA_AI_APPLICATION.md](VERITA_AI_APPLICATION.md)
+- Skills Questionnaire: [SKILLS_QUESTIONNAIRE.md](SKILLS_QUESTIONNAIRE.md)
+- Submission Summary: [VERITA_AI_SUBMISSION_SUMMARY.txt](VERITA_AI_SUBMISSION_SUMMARY.txt)
+
+**Assessment Documentation**:
+- Assessment 1 (Trello UI): [PROJECT_SUBMISSION.md](Presentation/Assessment1/PROJECT_SUBMISSION.md)
+- Implementation Details: [IMPLEMENTATION_DETAILS.md](Presentation/Assessment1/IMPLEMENTATION_DETAILS.md)
+- Workflow Report: [WORKFLOW_EFFICIENCY_REPORT.md](Presentation/Assessment1/WORKFLOW_EFFICIENCY_REPORT.md)
+- Assessment 2 (RL Framework): [SUBMISSION.md](Presentation/Assessment2/SUBMISSION.md)
 
 ---
 
