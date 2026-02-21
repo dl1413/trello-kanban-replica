@@ -115,10 +115,15 @@ trello-kanban-replica/
 │   ├── routes/                   # API routes
 │   ├── models/                   # Data models
 │   └── db/                       # Database layer
-├── Presentation/                 # Submission & presentation materials
-│   ├── PROJECT_SUBMISSION.md    # Main submission document
-│   ├── IMPLEMENTATION_DETAILS.md # Technical walkthrough
-│   └── WORKFLOW_EFFICIENCY_REPORT.md # Development methods
+├── Presentation/                 # Presentation materials organized by assessment
+│   ├── Assessment1/              # Assessment 1: Trello UI Replication
+│   │   ├── PROJECT_SUBMISSION.md    # Main submission document
+│   │   ├── IMPLEMENTATION_DETAILS.md # Technical walkthrough
+│   │   └── WORKFLOW_EFFICIENCY_REPORT.md # Development methods
+│   └── Assessment2/              # Assessment 2: RL Environment Framework
+│       ├── SUBMISSION.md            # Project submission
+│       ├── DELIVERABLES.md          # Deliverables summary
+│       └── VIDEO_TRANSCRIPT.md      # Presentation script
 ├── public/                       # Static assets
 └── docs/                         # Documentation
 ```
@@ -127,14 +132,18 @@ trello-kanban-replica/
 
 ## 📚 Documentation
 
-### Presentation Materials
-All project submission and presentation materials are organized in the **[Presentation/](Presentation/)** folder:
-- **[PROJECT_SUBMISSION.md](Presentation/PROJECT_SUBMISSION.md)** - Complete project overview and submission details
-- **[IMPLEMENTATION_DETAILS.md](Presentation/IMPLEMENTATION_DETAILS.md)** - Technical walkthrough of architecture and implementation
-- **[WORKFLOW_EFFICIENCY_REPORT.md](Presentation/WORKFLOW_EFFICIENCY_REPORT.md)** - Velocity methods and time-saving techniques
-- **[DELIVERABLES.md](Presentation/DELIVERABLES.md)** - Deliverables summary
-- **[VIDEO_TRANSCRIPT.md](Presentation/VIDEO_TRANSCRIPT.md)** - Video presentation script
-- **[RECORDING_GUIDE.md](Presentation/RECORDING_GUIDE.md)** - Guide for recording presentations
+### Assessment 1: Trello UI Replication (Take-Home)
+All materials for the rapid prototyping assessment are in the **[Presentation/Assessment1/](Presentation/Assessment1/)** folder:
+- **[PROJECT_SUBMISSION.md](Presentation/Assessment1/PROJECT_SUBMISSION.md)** - Complete project overview and submission details
+- **[IMPLEMENTATION_DETAILS.md](Presentation/Assessment1/IMPLEMENTATION_DETAILS.md)** - Technical walkthrough of architecture and implementation
+- **[WORKFLOW_EFFICIENCY_REPORT.md](Presentation/Assessment1/WORKFLOW_EFFICIENCY_REPORT.md)** - Velocity methods and time-saving techniques
+
+### Assessment 2: RL Environment Framework
+Materials for the RL framework project are in the **[Presentation/Assessment2/](Presentation/Assessment2/)** folder:
+- **[SUBMISSION.md](Presentation/Assessment2/SUBMISSION.md)** - Project submission overview
+- **[DELIVERABLES.md](Presentation/Assessment2/DELIVERABLES.md)** - Deliverables summary
+- **[VIDEO_TRANSCRIPT.md](Presentation/Assessment2/VIDEO_TRANSCRIPT.md)** - Video presentation script
+- **[RECORDING_GUIDE.md](Presentation/Assessment2/RECORDING_GUIDE.md)** - Guide for recording presentations
 
 ### Quick Start
 - **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
@@ -205,7 +214,7 @@ Exact design tokens extracted from Trello:
 - Auto-formatting (ESLint + Prettier)
 - **Total Time Saved**: ~150 minutes
 
-See [WORKFLOW_EFFICIENCY_REPORT.md](Presentation/WORKFLOW_EFFICIENCY_REPORT.md) for complete details.
+See [WORKFLOW_EFFICIENCY_REPORT.md](Presentation/Assessment1/WORKFLOW_EFFICIENCY_REPORT.md) for complete details.
 
 ---
 
@@ -234,7 +243,7 @@ If evolving to production, these improvements would be prioritized:
    - CI/CD pipeline
    - Cloud hosting (AWS/GCP)
 
-See [IMPLEMENTATION_DETAILS.md](Presentation/IMPLEMENTATION_DETAILS.md) for architecture details.
+See [IMPLEMENTATION_DETAILS.md](Presentation/Assessment1/IMPLEMENTATION_DETAILS.md) for architecture details.
 
 ---
 
@@ -304,9 +313,9 @@ npm run type-check   # TypeScript check
 **Branch**: claude/replicate-ui-component
 
 **Documentation**:
-- Project Submission: [PROJECT_SUBMISSION.md](Presentation/PROJECT_SUBMISSION.md)
-- Implementation Details: [IMPLEMENTATION_DETAILS.md](Presentation/IMPLEMENTATION_DETAILS.md)
-- Workflow Report: [WORKFLOW_EFFICIENCY_REPORT.md](Presentation/WORKFLOW_EFFICIENCY_REPORT.md)
+- Project Submission: [PROJECT_SUBMISSION.md](Presentation/Assessment1/PROJECT_SUBMISSION.md)
+- Implementation Details: [IMPLEMENTATION_DETAILS.md](Presentation/Assessment1/IMPLEMENTATION_DETAILS.md)
+- Workflow Report: [WORKFLOW_EFFICIENCY_REPORT.md](Presentation/Assessment1/WORKFLOW_EFFICIENCY_REPORT.md)
 
 ---
 
