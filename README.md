@@ -1,98 +1,36 @@
-# Trello Kanban Replica - RL Environment Framework
+# Trello Kanban Board Replica
 
-A comprehensive framework for developing and managing reinforcement learning environments at Verita AI, built on **Gymnasium** (the modern successor to OpenAI Gym).
+A fully functional Trello-style Kanban board built with React and Vite.
 
-## 🎯 Overview
+## Features
 
-This repository provides a structured approach to building, testing, and deploying reinforcement learning environments. It includes templates, guidelines, and tools optimized for RL environment engineers.
+- **Drag & Drop** - Reorder cards within lists and move cards between lists. Reorder lists themselves.
+- **Cards** - Create, edit, and delete cards with titles, descriptions, and color labels.
+- **Lists** - Create, rename, and delete lists (columns).
+- **Board Title** - Click to edit the board name.
+- **Labels** - Color-coded labels on cards (green, yellow, orange, red, purple, blue).
+- **Persistence** - All data saved to localStorage automatically.
+- **Responsive** - Horizontal scrolling for many lists.
 
-## 📊 Key Statistics
+## Tech Stack
 
-| Metric | Value |
-|--------|-------|
-| **Tests** | 40/40 passing (100%) |
-| **Lines of Code** | 4,500+ |
-| **Documentation** | 2,100+ lines |
-| **Security** | 0 vulnerabilities |
-| **API Compliance** | 100% Gymnasium |
+- React 18
+- Vite
+- @hello-pangea/dnd (drag and drop)
+- CSS (no framework — custom Trello-style design)
 
-## Project Structure
+## Getting Started
 
-```
-.
-├── environments/          # RL environment implementations
-├── configs/              # Configuration files for environments
-├── tests/                # Test suites for environments
-├── docs/                 # Comprehensive documentation
-├── examples/             # Example implementations
-├── tools/                # Utility tools and scripts
-└── presentation/         # Presentation and submission documents
-```
-
-## 🚀 Quick Start
-
-### 1. Setup Development Environment
 ```bash
-pip install -r requirements.txt
-# Optional: install torch for deep RL
-pip install torch>=2.0.0
+npm install
+npm run dev
 ```
 
-### 2. Create a New Environment
+Open http://localhost:5173 in your browser.
+
+## Build
+
 ```bash
-python tools/create_env.py --name my_env
+npm run build
+npm run preview
 ```
-
-### 3. Run Tests
-```bash
-pytest tests/
-```
-
-### 4. Try Examples
-```bash
-# Simple grid world demo
-python examples/simple_gridworld.py
-
-# Train a Q-Learning agent
-python examples/q_learning_agent.py
-```
-
-## ✨ Key Features
-
-| Feature | Description |
-|---------|-------------|
-| **Modern Gymnasium API** | Full compatibility with Gymnasium's 5-tuple step API (terminated/truncated) |
-| **Modular Design** | Easily extensible base classes for custom environments |
-| **Proper Seeding** | Reproducible experiments with per-environment RNG |
-| **Action Validation** | Built-in action space validation to catch errors early |
-| **Configuration Management** | YAML-based system with nested structure support |
-| **Reward Shaping** | Configurable scaling, clipping, and dense/sparse options |
-| **Comprehensive Testing** | 40 tests with Gymnasium API compliance validation |
-| **Documentation** | Complete API reference and development guides |
-| **Example Implementations** | Including Q-Learning agent with training visualization |
-| **Deployment Ready** | Docker support and CI/CD integration |
-
-## 📚 Documentation
-
-| Guide | Description |
-|-------|-------------|
-| [Environment Development Guide](docs/environment_development.md) | Step-by-step guide to creating environments |
-| [API Reference](docs/api_reference.md) | Complete API documentation |
-| [Testing Guidelines](docs/testing_guidelines.md) | Testing best practices |
-| [Deployment Guide](docs/deployment.md) | Production deployment instructions |
-| [Quick Start Guide](presentation/QUICKSTART.md) | Get started in minutes |
-
-## 📋 Presentation Documents
-
-For submission and presentation materials, see the [presentation/](presentation/) folder:
-- [Submission Document](presentation/SUBMISSION.md) - Complete technical submission
-- [Deliverables Summary](presentation/DELIVERABLES.md) - Project overview
-- [Video Transcript](presentation/VIDEO_TRANSCRIPT.md) - Recording script
-
-## 🤝 Contributing
-
-Please refer to [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines on contributing to this project.
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) file for details.
