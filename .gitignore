@@ -84,3 +84,7 @@ Thumbs.db
 tmp/
 temp/
 *.tmp
+
+# Generated PDFs
+*.pdf
+!docs/**/*.pdf

@@ -41,10 +41,17 @@ This repository provides a structured approach to building, testing, and deployi
    ```bash
    # Simple grid world demo
    python examples/simple_gridworld.py
-   
+
    # Train a Q-Learning agent
    python examples/q_learning_agent.py
    ```
+
+5. **Generate Project Portfolio Resume** (Optional)
+   ```bash
+   # Generate PDF resume showcasing project achievements
+   python tools/generate_resume_pdf.py
+   ```
+   See [Resume Generator Documentation](tools/README_RESUME_GENERATOR.md) for details.
 
 ## Key Features
 
@@ -57,6 +64,7 @@ This repository provides a structured approach to building, testing, and deployi
 - **Comprehensive Testing**: Full test suite with Gymnasium API compliance validation
 - **Documentation**: Auto-generated API documentation
 - **Example Implementations**: Including Q-Learning agent with training visualization
+- **Portfolio Generation**: PDF resume generator for showcasing project achievements
 - **Deployment Ready**: Docker support and CI/CD integration
 
 ## Documentation
