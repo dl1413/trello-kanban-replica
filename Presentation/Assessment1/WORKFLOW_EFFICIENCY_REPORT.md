@@ -31,7 +31,7 @@ This report details the systematic approach to rapid prototyping, including AI-a
 
 ### 1. AI-Assisted Development
 
-**Tools Used**: GitHub Copilot, ChatGPT
+**Tools Used**: GitHub Copilot, Claude
 
 #### Component Scaffolding with Copilot
 Copilot generated approximately 80% of boilerplate code structure:
@@ -60,7 +60,7 @@ const Card: React.FC<CardProps> = ({ card, listId, index, onDragStart }) => {
 **Time Saved**: ~45 minutes on boilerplate typing
 
 #### CSS Generation with AI
-Used ChatGPT to generate initial CSS from natural language descriptions:
+Used Claude to generate initial CSS from natural language descriptions:
 
 **Prompt**: "Create CSS for a card with hover state matching Trello's style"
 
@@ -98,7 +98,7 @@ interface Card {
 **Time Saved**: ~15 minutes on type definitions
 
 #### Algorithm Assistance
-Used ChatGPT for complex drag-and-drop position calculations:
+Used Claude for complex drag-and-drop position calculations:
 
 **Challenge**: Calculate insertion index when dragging between lists
 **Solution**: AI provided algorithm that handled edge cases
@@ -406,13 +406,13 @@ module.exports = db;
 
 ### 5. AI Pair Programming
 
-Used ChatGPT as rubber duck and code reviewer:
+Used Claude as rubber duck and code reviewer:
 
 **Example Dialog**:
 ```
 Me: "My drag-and-drop isn't updating the position correctly"
 
-ChatGPT: "Check if you're mutating state directly instead of
+Claude: "Check if you're mutating state directly instead of
 creating a new array. Redux requires immutable updates."
 
 Me: [Fixes issue in 2 minutes]
@@ -436,7 +436,7 @@ Me: [Fixes issue in 2 minutes]
 |-------|----------|------------|------------------------|
 | **Setup** | 30 min | Project scaffolding, dependencies, ESLint/Prettier, taking reference screenshots | Vite (fast setup), screenshot collection |
 | **Core UI** | 90 min | Board layout, list component, card component, CSS styling | Copilot (boilerplate), design tokens (accurate colors), CSS Modules |
-| **Drag-and-Drop** | 45 min | Drag handlers, visual feedback, testing | Copilot (hook structure), ChatGPT (algorithm), mock data |
+| **Drag-and-Drop** | 45 min | Drag handlers, visual feedback, testing | Copilot (hook structure), Claude (algorithm), mock data |
 | **Card Modal** | 30 min | Modal component, detail view, editing | Headless UI (modal), Copilot (boilerplate) |
 | **Backend/API** | 20 min | Express setup, API endpoints, JSON persistence | Mock-first approach, simple DB |
 | **Polish/Testing** | 25 min | Bug fixes, cross-browser, accessibility, final QA | Tab-switching QA, TypeScript errors, DevTools |
@@ -472,7 +472,7 @@ Me: [Fixes issue in 2 minutes]
 
 ✅ **AI Tools Are Game-Changing**
 - Copilot for boilerplate was invaluable
-- ChatGPT solved complex problems quickly
+- Claude solved complex problems quickly
 - Combined, they acted like a senior developer on call
 
 ✅ **Mock-First Development**
@@ -515,7 +515,7 @@ Me: [Fixes issue in 2 minutes]
 ### For Next Time
 
 **Would Do Again**:
-- AI-assisted development (Copilot + ChatGPT)
+- AI-assisted development (Copilot + Claude)
 - Design token extraction
 - Mock-first approach
 - Frequent git commits
@@ -533,7 +533,7 @@ Me: [Fixes issue in 2 minutes]
 
 ### 1. **Tool Maximalism**
 Used every tool available to increase speed:
-- AI (Copilot, ChatGPT)
+- AI (Copilot, Claude)
 - Fast build tools (Vite)
 - Component libraries (Headless UI)
 - Auto-formatting (Prettier)
@@ -580,7 +580,7 @@ The 4-hour development time was achieved by:
 1. **Strategic tool selection**: Right tool for each job
 2. **Aggressive automation**: Let computers do mechanical work
 3. **Smart shortcuts**: Screenshot-driven dev, mock-first, copy-paste-modify
-4. **AI leverage**: Copilot + ChatGPT as force multipliers
+4. **AI leverage**: Copilot + Claude as force multipliers
 5. **Scope focus**: Core features first, polish second
 
 **Result**: High-quality, production-ready code in 4 hours that might traditionally take 8-9 hours.
@@ -591,7 +591,7 @@ The 4-hour development time was achieved by:
 
 ### AI Tools
 - **GitHub Copilot**: Code completion and boilerplate generation
-- **ChatGPT**: Algorithm assistance, debugging, code review
+- **Claude**: Algorithm assistance, debugging, code review
 
 ### Development Tools
 - **Vite**: Fast build tool with instant HMR
