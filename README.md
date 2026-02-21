@@ -116,14 +116,14 @@ trello-kanban-replica/
 │   ├── models/                   # Data models
 │   └── db/                       # Database layer
 ├── Presentation/                 # Presentation materials organized by assessment
-│   ├── Assessment1/              # Assessment 1: RL Environment Framework
-│   │   ├── SUBMISSION.md             # Project submission
-│   │   ├── DELIVERABLES.md           # Deliverables summary
-│   │   └── VIDEO_TRANSCRIPT.md       # Presentation script
-│   └── Assessment2/              # Assessment 2: Trello UI Replication
-│       ├── PROJECT_SUBMISSION.md     # Main submission document
-│       ├── IMPLEMENTATION_DETAILS.md # Technical walkthrough
-│       └── WORKFLOW_EFFICIENCY_REPORT.md # Development methods
+│   ├── Assessment1/              # Assessment 1: Trello UI Replication (Rapid Prototyping)
+│   │   ├── PROJECT_SUBMISSION.md     # Main submission document
+│   │   ├── IMPLEMENTATION_DETAILS.md # Technical walkthrough
+│   │   └── WORKFLOW_EFFICIENCY_REPORT.md # Development methods
+│   └── Assessment2/              # Assessment 2: RL Environment Framework (Separate Project)
+│       ├── SUBMISSION.md             # Project submission
+│       ├── DELIVERABLES.md           # Deliverables summary
+│       └── VIDEO_TRANSCRIPT.md       # Presentation script
 ├── public/                       # Static assets
 └── docs/                         # Documentation
 ```
@@ -132,18 +132,18 @@ trello-kanban-replica/
 
 ## 📚 Documentation
 
-### Assessment 1: RL Environment Framework
-Materials for the RL framework project are in the **[Presentation/Assessment1/](Presentation/Assessment1/)** folder:
-- **[SUBMISSION.md](Presentation/Assessment1/SUBMISSION.md)** - Project submission overview
-- **[DELIVERABLES.md](Presentation/Assessment1/DELIVERABLES.md)** - Deliverables summary
-- **[VIDEO_TRANSCRIPT.md](Presentation/Assessment1/VIDEO_TRANSCRIPT.md)** - Video presentation script
-- **[RECORDING_GUIDE.md](Presentation/Assessment1/RECORDING_GUIDE.md)** - Guide for recording presentations
+### Assessment 1: Trello UI Replication (Rapid Prototyping - Take-Home)
+All materials for the rapid prototyping assessment are in the **[Presentation/Assessment1/](Presentation/Assessment1/)** folder:
+- **[PROJECT_SUBMISSION.md](Presentation/Assessment1/PROJECT_SUBMISSION.md)** - Complete project overview and submission details
+- **[IMPLEMENTATION_DETAILS.md](Presentation/Assessment1/IMPLEMENTATION_DETAILS.md)** - Technical walkthrough of architecture and implementation
+- **[WORKFLOW_EFFICIENCY_REPORT.md](Presentation/Assessment1/WORKFLOW_EFFICIENCY_REPORT.md)** - Velocity methods and time-saving techniques
 
-### Assessment 2: Trello UI Replication (Take-Home)
-All materials for the rapid prototyping assessment are in the **[Presentation/Assessment2/](Presentation/Assessment2/)** folder:
-- **[PROJECT_SUBMISSION.md](Presentation/Assessment2/PROJECT_SUBMISSION.md)** - Complete project overview and submission details
-- **[IMPLEMENTATION_DETAILS.md](Presentation/Assessment2/IMPLEMENTATION_DETAILS.md)** - Technical walkthrough of architecture and implementation
-- **[WORKFLOW_EFFICIENCY_REPORT.md](Presentation/Assessment2/WORKFLOW_EFFICIENCY_REPORT.md)** - Velocity methods and time-saving techniques
+### Assessment 2: RL Environment Framework (Separate Project)
+Materials for the RL framework project are in the **[Presentation/Assessment2/](Presentation/Assessment2/)** folder:
+- **[SUBMISSION.md](Presentation/Assessment2/SUBMISSION.md)** - Project submission overview
+- **[DELIVERABLES.md](Presentation/Assessment2/DELIVERABLES.md)** - Deliverables summary
+- **[VIDEO_TRANSCRIPT.md](Presentation/Assessment2/VIDEO_TRANSCRIPT.md)** - Video presentation script
+- **[RECORDING_GUIDE.md](Presentation/Assessment2/RECORDING_GUIDE.md)** - Guide for recording presentations
 
 ### Quick Start
 - **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
