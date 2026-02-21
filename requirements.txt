@@ -19,3 +19,6 @@ wandb>=0.15.0
 
 # Utilities
 tqdm>=4.65.0
+
+# PDF generation
+reportlab>=4.0.0
