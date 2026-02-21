@@ -6,7 +6,7 @@ This folder contains all project submission and presentation materials, organize
 
 ## 📁 Folder Structure
 
-### Assessment1/ - Trello UI Replication (Take-Home)
+### Assessment1 - Trello UI Replication (Take-Home)
 **Type**: Rapid Prototyping & Interface Replication
 **Duration**: 3-4 hours
 **Focus**: Visual fidelity, rapid development velocity, full-stack implementation
@@ -26,7 +26,7 @@ This folder contains all project submission and presentation materials, organize
 
 ---
 
-### Assessment2/ - RL Environment Framework
+### Assessment2 - RL Environment Framework
 **Type**: Technical Project Submission
 **Client**: Verita AI
 **Focus**: API migration, testing, documentation, production readiness
