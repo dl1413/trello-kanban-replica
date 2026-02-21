@@ -314,7 +314,9 @@ npm run type-check   # TypeScript check
 **Repository**: https://github.com/dl1413/trello-kanban-replica
 **Branch**: claude/replicate-ui-component
 
-**Verita AI Application Documents**:
+**Resume & Portfolio**:
+- Professional CV: [CV.md](CV.md)
+- One-Page Resume: [RESUME.md](RESUME.md)
 - Complete Application: [VERITA_AI_APPLICATION.md](VERITA_AI_APPLICATION.md)
 - Skills Questionnaire: [SKILLS_QUESTIONNAIRE.md](SKILLS_QUESTIONNAIRE.md)
 - Submission Summary: [VERITA_AI_SUBMISSION_SUMMARY.txt](VERITA_AI_SUBMISSION_SUMMARY.txt)
