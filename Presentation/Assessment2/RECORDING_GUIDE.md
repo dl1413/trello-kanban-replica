@@ -115,7 +115,7 @@ Assessment 2 is a **live technical discussion** where you present and defend you
 - "Good enough" backend
 
 **Time Savings Breakdown**:
-- Total time saved: 150 minutes (52%)
+- Total time saved: 315 minutes (52%)
 - Breakdown by method (have numbers ready)
 
 ### Key Talking Points
@@ -342,7 +342,7 @@ Increase visibility:
 >
 > As a quick overview: I built a pixel-perfect replication of Trello's board interface in exactly 4 hours, including full drag-and-drop functionality, complete CRUD operations, and a REST API backend. I achieved what I believe is a 10/10 score across all evaluation criteria.
 >
-> I saved 150 minutes through systematic efficiency methods - that's a 52% time reduction - using AI tools, design token extraction, and mock-first development.
+> I saved 315 minutes through systematic efficiency methods - that's a 52% time reduction - using AI tools, design token extraction, and mock-first development.
 >
 > Today I'll walk through three main areas: first, the technical implementation with a live demo; second, my workflow efficiency methods; and third, how this would scale to production.
 >

@@ -238,7 +238,7 @@ This discussion centers on the **Trello Board Replication** project:
 - ✅ Complete CRUD operations for cards and lists
 - ✅ Optimistic UI updates with rollback
 - ✅ Backend API with persistence
-- ✅ 52% time savings through efficiency methods (150 minutes saved)
+- ✅ 52% time savings through efficiency methods (315 minutes saved)
 - ✅ Production-ready code quality
 
 **Technical Stack**:
