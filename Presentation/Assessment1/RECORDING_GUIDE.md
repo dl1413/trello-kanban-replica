@@ -113,7 +113,7 @@
 - ✅ **Drag-and-Drop**: Smooth, professional interaction
 - ✅ **Full-Stack**: React + TypeScript + Node.js + Express
 - ✅ **10/10 Score**: Perfect evaluation on all criteria
-- ✅ **52% Efficiency**: 150 minutes saved through automation
+- ✅ **57% Efficiency**: 315 minutes saved through automation
 
 ### Workflow Highlights
 - AI-assisted development (GitHub Copilot, ChatGPT)
@@ -361,7 +361,7 @@ If running under time:
 
 > "Hello! My name is [Your Name], and today I'm excited to present my Trello Board Replica project. This is a pixel-perfect, full-stack implementation that I completed in just 4 hours as part of the Rapid Prototyping assessment.
 >
-> I achieved a 10/10 score on all evaluation criteria by leveraging AI tools, modern development practices, and strategic workflow optimization. I'll show you the live application, walk through the code, and explain how I saved 150 minutes through automation—that's a 52% efficiency gain.
+> I achieved a 10/10 score on all evaluation criteria by leveraging AI tools, modern development practices, and strategic workflow optimization. I'll show you the live application, walk through the code, and explain how I saved 315 minutes through automation—that's a 57% efficiency gain.
 >
 > Let's start by looking at the live application!"
 
