@@ -4,12 +4,13 @@ Example: Training Script for RL Environments
 This script demonstrates how to train an RL agent on a custom environment.
 """
 
-import numpy as np
-import yaml
-import logging
 import argparse
-import pandas as pd
+import logging
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
 from examples.simple_gridworld import SimpleGridWorld
 
 # Configure logging
@@ -28,15 +29,14 @@ def train_random_agent(env, num_episodes=100, seed=None, early_stopping_threshol
     Args:
         env: Environment instance
         num_episodes: Number of episodes to run
-        seed: Random seed for reproducibility
+        seed: Random seed for reproducibility (used for per-episode env seeding)
         early_stopping_threshold: Stop if reward exceeds this threshold
 
     Returns:
         Training statistics including pandas DataFrame
     """
     if seed is not None:
-        np.random.seed(seed)
-        logger.info(f"Set random seed to {seed}")
+        logger.info(f"Using per-episode seeding with base seed {seed}")
 
     episode_rewards = []
     episode_lengths = []
@@ -174,12 +174,12 @@ def main():
     }
     env = SimpleGridWorld(env_config)
 
-    logger.info(f'Environment: SimpleGridWorld')
-    logger.info(f'Grid size: {args.grid_size}x{args.grid_size}')
-    logger.info(f'Max episode length: {args.episode_length}')
-    logger.info(f'Action space: {env.action_space}')
-    logger.info(f'Observation space: {env.observation_space}')
-    logger.info(f'Random seed: {args.seed if args.seed is not None else "None"}')
+    logger.info('Environment: SimpleGridWorld')
+    logger.info('Grid size: %dx%d', args.grid_size, args.grid_size)
+    logger.info('Max episode length: %d', args.episode_length)
+    logger.info('Action space: %s', env.action_space)
+    logger.info('Observation space: %s', env.observation_space)
+    logger.info('Random seed: %s', args.seed)
 
     # Train random agent (baseline)
     logger.info('\n' + '=' * 50)

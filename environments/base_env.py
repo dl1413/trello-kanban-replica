@@ -8,7 +8,7 @@ that are compatible with Gymnasium interface.
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-from typing import Tuple, Dict, Any, Optional, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 
 class BaseEnvironment(gym.Env):
@@ -29,7 +29,7 @@ class BaseEnvironment(gym.Env):
         Args:
             config: Configuration dictionary for the environment
         """
-        super(BaseEnvironment, self).__init__()
+        super().__init__()
         
         self.config = config or {}
         self._load_config(self.config)
@@ -91,39 +91,24 @@ class BaseEnvironment(gym.Env):
             truncated: Whether the episode is truncated (time limit)
             info: Additional information
         """
-        # Validate action
-        if not self.action_space.contains(action):
-            raise ValueError(f"Invalid action {action} for space {self.action_space}")
-        
         if self.terminated or self.truncated:
             raise RuntimeError("Episode is done. Call reset() to start a new episode.")
-        
+
+        if not self.action_space.contains(action):
+            raise ValueError(f"Invalid action {action} for space {self.action_space}")
+
         self.current_step += 1
         self.episode_steps += 1
 
-        # Execute action and update state
         self._update_state(action)
 
-        # Calculate reward
-        reward = self._calculate_reward(action)
-
-        # Apply reward scaling and clipping
-        reward = self._apply_reward_processing(reward)
-
-        # Track episode return
+        reward = self._apply_reward_processing(self._calculate_reward(action))
         self.episode_return += reward
 
-        # Check if episode is terminated or truncated
         self.terminated = self._is_terminated()
         self.truncated = self._is_truncated()
 
-        # Get observation
-        observation = self._get_observation()
-
-        # Additional info
-        info = self._get_info()
-
-        return observation, reward, self.terminated, self.truncated, info
+        return self._get_observation(), reward, self.terminated, self.truncated, self._get_info()
     
     def render(self, mode: str = 'human') -> Optional[np.ndarray]:
         """
@@ -137,9 +122,6 @@ class BaseEnvironment(gym.Env):
         """
         if mode == 'rgb_array':
             return self._get_rgb_array()
-        elif mode == 'human':
-            # Override this method for custom rendering
-            pass
         return None
     
     def close(self):
@@ -175,14 +157,16 @@ class BaseEnvironment(gym.Env):
             raise ValueError(f"reward_scale must be a number, got {type(self.reward_scale)}")
 
         clip_enabled = reward_config.get('clip', False)
-        self.reward_clip_range = reward_config.get('clip_range', [-10, 10]) if clip_enabled else None
+        clip_range = reward_config.get('clip_range', [-10, 10]) if clip_enabled else None
 
-        # Validate reward_clip_range
-        if self.reward_clip_range is not None:
-            if not isinstance(self.reward_clip_range, (list, tuple)) or len(self.reward_clip_range) != 2:
-                raise ValueError(f"reward_clip_range must be a list/tuple of 2 numbers, got {self.reward_clip_range}")
-            if self.reward_clip_range[0] > self.reward_clip_range[1]:
+        if clip_range is not None:
+            if not isinstance(clip_range, (list, tuple)) or len(clip_range) != 2:
+                raise ValueError(f"reward_clip_range must be a list/tuple of 2 numbers, got {clip_range}")
+            if clip_range[0] > clip_range[1]:
                 raise ValueError(f"reward_clip_range[0] must be <= reward_clip_range[1]")
+            self.reward_clip_range = (float(clip_range[0]), float(clip_range[1]))
+        else:
+            self.reward_clip_range = None
 
     def _apply_reward_processing(self, reward: float) -> float:
         """
@@ -194,12 +178,14 @@ class BaseEnvironment(gym.Env):
         Returns:
             Processed reward
         """
-        # Apply scaling
-        reward = reward * self.reward_scale
+        reward *= self.reward_scale
 
-        # Apply clipping if configured
         if self.reward_clip_range is not None:
-            reward = np.clip(reward, self.reward_clip_range[0], self.reward_clip_range[1])
+            lo, hi = self.reward_clip_range
+            if reward < lo:
+                reward = lo
+            elif reward > hi:
+                reward = hi
 
         return reward
     
