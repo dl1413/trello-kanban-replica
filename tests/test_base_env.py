@@ -249,7 +249,7 @@ class TestBaseEnvironmentEdgeCases:
         
         assert env.episode_length == 500
         assert env.reward_scale == 2.0
-        assert env.reward_clip_range == [-5, 5]
+        assert env.reward_clip_range == (-5.0, 5.0)
     
     def test_reward_scaling(self):
         """Test that rewards are scaled correctly."""

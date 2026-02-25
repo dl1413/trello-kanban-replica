@@ -20,43 +20,47 @@ class SimpleGridWorld(BaseEnvironment):
     Reward: -1 per step, +100 for reaching goal (or dense reward based on distance)
     """
 
+    # Pre-computed movement vectors (class-level constant to avoid per-step allocation)
+    _MOVEMENTS = np.array([
+        [-1,  0],  # 0: up
+        [ 0,  1],  # 1: right
+        [ 1,  0],  # 2: down
+        [ 0, -1],  # 3: left
+    ], dtype=np.int32)
+
+    _MAX_PLACEMENT_ATTEMPTS = 10_000
+
     def __init__(self, config=None):
         """Initialize the grid world environment."""
         super().__init__(config)
 
-        # Grid dimensions
         self.grid_size = self.config.get('grid_size', 10)
-
-        # Reward configuration
         self.reward_type = self.config.get('reward_type', 'sparse')
-
-        # Goal randomization
         self.randomize_goal = self.config.get('randomize_goal', False)
         self.fixed_goal_pos = self.config.get('fixed_goal_pos', None)
-
-        # Obstacles configuration
         self.num_obstacles = self.config.get('num_obstacles', 0)
         self.obstacles = set()
 
-        # Define spaces - normalized to [0, 1]
         self.action_space = spaces.Discrete(4)
         self.observation_space = spaces.Box(
             low=0.0, high=1.0, shape=(2,), dtype=np.float32
         )
 
-        # Initialize positions
         self.agent_pos = None
         self.goal_pos = None
         self.prev_distance = None
-        self.max_distance = self.grid_size * np.sqrt(2)  # Maximum possible distance
+
+        # Cache frequently used derived values
+        self._grid_max = self.grid_size - 1
+        self._obs_scale = 1.0 / self._grid_max if self._grid_max > 0 else 1.0
+        self.max_distance = self.grid_size * np.sqrt(2)
         
     def _get_initial_state(self):
         """Initialize agent and goal positions."""
-        # Generate obstacles first
         self._generate_obstacles()
 
-        # Random starting position using gymnasium's RNG (avoiding obstacles)
-        while True:
+        # Random starting position avoiding obstacles
+        for _ in range(self._MAX_PLACEMENT_ATTEMPTS):
             self.agent_pos = np.array([
                 self.np_random.integers(0, self.grid_size),
                 self.np_random.integers(0, self.grid_size)
@@ -69,7 +73,7 @@ class SimpleGridWorld(BaseEnvironment):
             if self.fixed_goal_pos is not None:
                 self.goal_pos = np.array(self.fixed_goal_pos, dtype=np.int32)
             else:
-                while True:
+                for _ in range(self._MAX_PLACEMENT_ATTEMPTS):
                     self.goal_pos = np.array([
                         self.np_random.integers(0, self.grid_size),
                         self.np_random.integers(0, self.grid_size)
@@ -78,7 +82,6 @@ class SimpleGridWorld(BaseEnvironment):
                             tuple(self.goal_pos) not in self.obstacles):
                         break
 
-        # Initialize distance for dense reward shaping
         self.prev_distance = np.linalg.norm(self.agent_pos - self.goal_pos)
 
         return self.agent_pos.copy()
@@ -87,10 +90,10 @@ class SimpleGridWorld(BaseEnvironment):
         """Generate random obstacles on the grid."""
         self.obstacles = set()
         for _ in range(self.num_obstacles):
-            while True:
+            for _ in range(self._MAX_PLACEMENT_ATTEMPTS):
                 obstacle_pos = (
-                    self.np_random.integers(0, self.grid_size),
-                    self.np_random.integers(0, self.grid_size)
+                    int(self.np_random.integers(0, self.grid_size)),
+                    int(self.np_random.integers(0, self.grid_size))
                 )
                 if obstacle_pos not in self.obstacles:
                     self.obstacles.add(obstacle_pos)
@@ -98,45 +101,29 @@ class SimpleGridWorld(BaseEnvironment):
     
     def _get_observation(self):
         """Return current agent position, normalized to [0, 1]."""
-        # Normalize position to [0, 1] range for better neural network compatibility
-        return (self.agent_pos / (self.grid_size - 1)).astype(np.float32)
+        return (self.agent_pos * self._obs_scale).astype(np.float32)
     
     def _update_state(self, action):
         """Update agent position based on action (avoids obstacles)."""
-        # Map actions to movements
-        movements = {
-            0: np.array([-1, 0]),  # up
-            1: np.array([0, 1]),   # right
-            2: np.array([1, 0]),   # down
-            3: np.array([0, -1])   # left
-        }
+        new_pos = self.agent_pos + self._MOVEMENTS[action]
+        np.clip(new_pos, 0, self._grid_max, out=new_pos)
 
-        # Calculate new position
-        new_pos = self.agent_pos + movements[action]
-
-        # Keep agent within bounds
-        new_pos = np.clip(new_pos, 0, self.grid_size - 1)
-
-        # Check for obstacles - don't move if hitting an obstacle
         if tuple(new_pos) not in self.obstacles:
             self.agent_pos = new_pos
     
     def _calculate_reward(self, action):
         """Calculate reward based on goal proximity."""
-        # Check if goal is reached
         if np.array_equal(self.agent_pos, self.goal_pos):
             return 100.0
 
-        # Reward shaping based on configuration
         if self.reward_type == 'dense':
-            # Dense reward: potential-based shaping, normalized by max distance
-            current_distance = np.linalg.norm(self.agent_pos - self.goal_pos)
+            diff = self.agent_pos - self.goal_pos
+            current_distance = np.sqrt(diff[0] * diff[0] + diff[1] * diff[1])
             reward = (self.prev_distance - current_distance) / self.max_distance
             self.prev_distance = current_distance
             return reward
-        else:
-            # Sparse reward: small negative reward for each step
-            return -1.0
+
+        return -1.0
     
     def _is_terminated(self):
         """Episode terminates when goal is reached."""
@@ -149,12 +136,12 @@ class SimpleGridWorld(BaseEnvironment):
     def _get_info(self):
         """Return additional information about the episode."""
         info = super()._get_info()
-        info.update({
-            'agent_pos': self.agent_pos.tolist(),
-            'goal_pos': self.goal_pos.tolist(),
-            'distance_to_goal': np.linalg.norm(self.agent_pos - self.goal_pos),
-            'goal_reached': np.array_equal(self.agent_pos, self.goal_pos)
-        })
+        goal_reached = self.terminated
+        diff = self.agent_pos - self.goal_pos
+        info['agent_pos'] = self.agent_pos.tolist()
+        info['goal_pos'] = self.goal_pos.tolist()
+        info['distance_to_goal'] = 0.0 if goal_reached else float(np.sqrt(diff[0] * diff[0] + diff[1] * diff[1]))
+        info['goal_reached'] = goal_reached
         return info
     
     def render(self, mode='human'):
@@ -200,30 +187,35 @@ class SimpleGridWorld(BaseEnvironment):
             np.ndarray: RGB image of the grid world
         """
         cell_size = 64
+        half_cell = cell_size // 2
         img_size = self.grid_size * cell_size
-        img = np.ones((img_size, img_size, 3), dtype=np.uint8) * 255  # White background
+        img = np.full((img_size, img_size, 3), 255, dtype=np.uint8)
 
         # Draw grid lines
+        grid_color = (200, 200, 200)
         for i in range(self.grid_size + 1):
-            cv2.line(img, (0, i * cell_size), (img_size, i * cell_size), (200, 200, 200), 1)
-            cv2.line(img, (i * cell_size, 0), (i * cell_size, img_size), (200, 200, 200), 1)
+            pos = i * cell_size
+            cv2.line(img, (0, pos), (img_size, pos), grid_color, 1)
+            cv2.line(img, (pos, 0), (pos, img_size), grid_color, 1)
 
         # Draw obstacles (gray)
-        for obs_pos in self.obstacles:
-            y, x = obs_pos
-            top_left = (x * cell_size, y * cell_size)
-            bottom_right = ((x + 1) * cell_size, (y + 1) * cell_size)
-            cv2.rectangle(img, top_left, bottom_right, (100, 100, 100), -1)
+        for obs_y, obs_x in self.obstacles:
+            cv2.rectangle(
+                img,
+                (obs_x * cell_size, obs_y * cell_size),
+                ((obs_x + 1) * cell_size, (obs_y + 1) * cell_size),
+                (100, 100, 100), -1
+            )
 
         # Draw goal (green)
-        y, x = self.goal_pos
-        center = (x * cell_size + cell_size // 2, y * cell_size + cell_size // 2)
-        cv2.circle(img, center, cell_size // 3, (0, 255, 0), -1)
+        gy, gx = self.goal_pos
+        cv2.circle(img, (gx * cell_size + half_cell, gy * cell_size + half_cell),
+                   cell_size // 3, (0, 255, 0), -1)
 
         # Draw agent (blue)
-        y, x = self.agent_pos
-        center = (x * cell_size + cell_size // 2, y * cell_size + cell_size // 2)
-        cv2.circle(img, center, cell_size // 4, (255, 0, 0), -1)
+        ay, ax = self.agent_pos
+        cv2.circle(img, (ax * cell_size + half_cell, ay * cell_size + half_cell),
+                   cell_size // 4, (255, 0, 0), -1)
 
         return img
 
