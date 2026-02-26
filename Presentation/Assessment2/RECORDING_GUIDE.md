@@ -419,6 +419,6 @@ Be yourself, be confident, and show your passion for building things quickly and
 
 ---
 
-**Last Updated**: February 21, 2026
+**Last Updated**: February 26, 2026
 **Discussion Duration**: 60 minutes
 **Format**: Live technical interview with Q&A

@@ -3,7 +3,7 @@
 **Assessment**: Rapid Prototyping & Interface Replication (Assessment 1)
 **Project**: Trello Board Replica
 **Duration**: 4 hours (240 minutes)
-**Date**: February 21, 2026
+**Date**: February 26, 2026
 
 ---
 
@@ -554,7 +554,7 @@ All deliverables are complete, documented, and ready for review. The project dem
 
 **Status**: ✅ **COMPLETE AND READY FOR REVIEW**
 
-**Submission Date**: February 21, 2026
+**Submission Date**: February 26, 2026
 **Total Development Time**: 4 hours (240 minutes)
 **Final Score**: 10/10 against assessment rubric
 
