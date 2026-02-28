@@ -4,8 +4,6 @@
 
 A pixel-perfect replication of Trello's core board interface, built in 4 hours as a demonstration of rapid prototyping skills, visual precision, and full-stack development capability.
 
-> 📋 **Verita AI Application**: This repository demonstrates comprehensive full-stack engineering skills for the RL Environments Engineer position. See [VERITA_AI_APPLICATION.md](VERITA_AI_APPLICATION.md) and [SKILLS_QUESTIONNAIRE.md](SKILLS_QUESTIONNAIRE.md) for complete details.
-
 ---
 
 ## 🎯 Project Overview
@@ -317,9 +315,6 @@ npm run type-check   # TypeScript check
 **Resume & Portfolio**:
 - Professional CV: [CV.md](CV.md)
 - One-Page Resume: [RESUME.md](RESUME.md)
-- Complete Application: [VERITA_AI_APPLICATION.md](VERITA_AI_APPLICATION.md)
-- Skills Questionnaire: [SKILLS_QUESTIONNAIRE.md](SKILLS_QUESTIONNAIRE.md)
-- Submission Summary: [VERITA_AI_SUBMISSION_SUMMARY.txt](VERITA_AI_SUBMISSION_SUMMARY.txt)
 
 **Assessment Documentation**:
 - Assessment 1 (Trello UI): [PROJECT_SUBMISSION.md](Presentation/Assessment1/PROJECT_SUBMISSION.md)
